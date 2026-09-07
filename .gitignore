@@ -1,0 +1,8 @@
+*.env
+adapters/*.env
+*.db
+__pycache__/
+*.env
+adapters/*.env
+*.db
+__pycache__/
