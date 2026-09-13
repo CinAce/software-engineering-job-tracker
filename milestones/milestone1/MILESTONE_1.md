@@ -1,3 +1,15 @@
+## Part 1: Project Overview
+
+The Software Engineering Job Tracker is a backend service designed to help university computer science students organize, prepare, and analyze their internship and full-time job applications. Navigating the recruitment cycle requires keeping track of numerous companies, timelines, and tailored documents. By keeping all this information in one place, users can maintain a clear view of their active pipeline and upcoming deadlines. The application's core features revolve around logging a job posting, updating its status asynchronously, and associating it with specific user assets. Users will create job entries, attach their resumes or cover letters used for that application, and move the application through stages such as rejections, applying, or interviewing. The goal is to make job hunting as easy and laid-back as possible. 
+
+| Service Category | Interface | Feature Application |
+| :--- | :--- | :--- |
+| **Relational Data** | PostgreSQL wire protocol | Storing core application data, including job details, interview schedules, and current application statuses. |
+| **Object Storage** | S3 API | Storing and retrieving user-uploaded files, such as tailored PDF resumes and cover letters tied to specific applications. |
+| **Message Broker** | AMQP 0-9-1 | Queuing asynchronous background tasks, such as parsing job descriptions from URLs or generating daily application summary reports. |
+| **Metrics** | Prometheus exposition | Tracking system health, including the number of applications logged per minute and the latency of the resume upload endpoints. |
+
+
 ### Part 2: API Endpoint Documentation
 
 #### Core API Decisions
