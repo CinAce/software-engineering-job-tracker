@@ -1,0 +1,28 @@
+=== PART 2: EVENT-DRIVEN ROUTING ===
+
+=== PUBLISH application.created ===
+{"status":"published","event":{"event_id":"27294d65-9a21-4f25-8d9b-f1686b6e13ad","event_type":"application.created","version":"v1","timestamp":"2026-09-21T02:12:53.584256+00:00","source":"job-tracker-api","data":{"application_id":"app-1001","job_id":"job-2001","user_id":"user-3001","status":"applied"}}}
+
+=== NOTIFICATION SUBSCRIBER ===
+notification-subscriber-1  | [NOTIFICATION] Listening queue=notification.events bindings=['application.*', 'resume.*']
+notification-subscriber-1  | [NOTIFICATION] RECEIVED event_id=7f1183b6-73d0-4b60-86bf-631bd89f3ac1 event_type=application.created routing_key=application.created
+notification-subscriber-1  | [NOTIFICATION] payload={'event_id': '7f1183b6-73d0-4b60-86bf-631bd89f3ac1', 'event_type': 'application.created', 'version': 'v1', 'timestamp': '2026-09-21T02:12:15.692589+00:00', 'source': 'job-tracker-api', 'data': {'application_id': 'app-1001', 'job_id': 'job-2001', 'user_id': 'user-3001', 'status': 'applied'}}
+notification-subscriber-1  | [NOTIFICATION] RECEIVED event_id=27294d65-9a21-4f25-8d9b-f1686b6e13ad event_type=application.created routing_key=application.created
+notification-subscriber-1  | [NOTIFICATION] payload={'event_id': '27294d65-9a21-4f25-8d9b-f1686b6e13ad', 'event_type': 'application.created', 'version': 'v1', 'timestamp': '2026-09-21T02:12:53.584256+00:00', 'source': 'job-tracker-api', 'data': {'application_id': 'app-1001', 'job_id': 'job-2001', 'user_id': 'user-3001', 'status': 'applied'}}
+
+=== ANALYTICS SUBSCRIBER ===
+analytics-subscriber-1  | [ANALYTICS] Listening queue=analytics.events bindings=['*.created', 'job.deleted']
+analytics-subscriber-1  | [ANALYTICS] RECEIVED event_id=7f1183b6-73d0-4b60-86bf-631bd89f3ac1 event_type=application.created routing_key=application.created
+analytics-subscriber-1  | [ANALYTICS] payload={'event_id': '7f1183b6-73d0-4b60-86bf-631bd89f3ac1', 'event_type': 'application.created', 'version': 'v1', 'timestamp': '2026-09-21T02:12:15.692589+00:00', 'source': 'job-tracker-api', 'data': {'application_id': 'app-1001', 'job_id': 'job-2001', 'user_id': 'user-3001', 'status': 'applied'}}
+analytics-subscriber-1  | [ANALYTICS] RECEIVED event_id=27294d65-9a21-4f25-8d9b-f1686b6e13ad event_type=application.created routing_key=application.created
+analytics-subscriber-1  | [ANALYTICS] payload={'event_id': '27294d65-9a21-4f25-8d9b-f1686b6e13ad', 'event_type': 'application.created', 'version': 'v1', 'timestamp': '2026-09-21T02:12:53.584256+00:00', 'source': 'job-tracker-api', 'data': {'application_id': 'app-1001', 'job_id': 'job-2001', 'user_id': 'user-3001', 'status': 'applied'}}
+
+=== RABBITMQ TOPIC BINDINGS ===
+Listing bindings for vhost /...
+source_name	destination_name	routing_key
+	analytics.events	analytics.events
+	notification.events	notification.events
+job_tracker.events	analytics.events	*.created
+job_tracker.events	notification.events	application.*
+job_tracker.events	analytics.events	job.deleted
+job_tracker.events	notification.events	resume.*

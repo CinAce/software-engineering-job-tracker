@@ -240,3 +240,35 @@ def trigger_export(request: ExportRequest):
     )
     connection.close()
     return {"id": task_id, "status": "accepted", "workflow": "export"}
+
+
+class EventPublishRequest(BaseModel):
+    event_type: str
+    data: dict
+
+
+@app.post("/api/events/publish", status_code=status.HTTP_202_ACCEPTED)
+def publish_domain_event(request: EventPublishRequest):
+    from app.events.publisher import publish_event
+
+    try:
+        event = publish_event(
+            event_type=request.event_type,
+            data=request.data,
+        )
+
+        return {
+            "status": "published",
+            "event": event,
+        }
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        )
+    except pika.exceptions.AMQPError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Message broker is currently unavailable",
+        )
