@@ -1,6 +1,20 @@
-# Module 1 — one service. Containers and images, nothing else.
-name: itc531m1
+name: itc531-milestone2
+
 services:
+  broker:
+    image: rabbitmq:3-management
+    environment:
+      RABBITMQ_DEFAULT_USER: ${BROKER_USER:?set BROKER_USER in .env.local (see README)}
+      RABBITMQ_DEFAULT_PASS: ${BROKER_PASSWORD:?set BROKER_PASSWORD in .env.local (see README)}
+    ports: 
+      - "127.0.0.1:15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
   app:
     build:
       context: .
@@ -11,13 +25,45 @@ services:
       DATABASE_URL: sqlite:////data/app.db
       S3_ENDPOINT_URL: "http://unused:9000"
       S3_BUCKET: unused
-    ports: ["${APP_PORT:-8000}:8000"]
+      BROKER_URL: amqp://${BROKER_USER}:${BROKER_PASSWORD}@broker:5672/
+    expose: 
+      - "8000"
     volumes: ["appdata:/data"]
+    depends_on:
+      broker:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
       interval: 10s
       timeout: 3s
       retries: 5
       start_period: 20s
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args: ["PYTHON_TAG=3.12.11-slim-bookworm"]
+    command: ["python", "-m", "app.worker"] 
+    env_file: ["adapters/${ADAPTER:-local}.env"]
+    environment:
+      DATABASE_URL: sqlite:////data/app.db
+      BROKER_URL: amqp://${BROKER_USER}:${BROKER_PASSWORD}@broker:5672/
+    volumes: ["appdata:/data"]
+    depends_on:
+      broker:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+
+  gateway:
+    image: nginx:alpine
+    ports: 
+      - "8000:80"
+    volumes: 
+      - ./nginx/gateway.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+
 volumes:
   appdata:

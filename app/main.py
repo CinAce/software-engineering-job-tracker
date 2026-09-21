@@ -12,15 +12,20 @@ either direction is worse than none.
 from __future__ import annotations
 
 import os
+import json
+import uuid
 from contextlib import asynccontextmanager
 from time import perf_counter
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from pydantic import BaseModel
 from prometheus_client import Counter, Histogram, make_asgi_app
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
+import pika
+import pika.exceptions
 
 from app import models, schemas, security
 from app.db import Base, engine, get_db
@@ -34,8 +39,6 @@ LATENCY = Histogram("itc531_request_seconds", "Request latency", ["method", "pat
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    # See Settings.auto_create_tables. From Module 2 onward, migrations own the
-    # schema and this is turned off by the compose file, not by editing here.
     if settings.auto_create_tables:
         Base.metadata.create_all(bind=engine)
     yield
@@ -45,14 +48,12 @@ app = FastAPI(title=settings.app_name, version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,   # never ["*"] — see module 6
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
     allow_headers=["Authorization", "Content-Type"],
 )
 
-# Mounted as a sub-application, so the scrape path is /metrics/ with the
-# trailing slash. config/prometheus/prometheus.yml already accounts for this.
 app.mount("/metrics", make_asgi_app())
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
@@ -60,12 +61,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
 
 @app.middleware("http")
 async def observe(request: Request, call_next):
-    # The matched route is only in the scope AFTER the router has run, so this
-    # must be read after call_next. Reading it before gives None, which falls
-    # back to the raw URL — and then /tasks/1, /tasks/2, /tasks/999 each become
-    # a separate time series. That is unbounded label cardinality, and it is how
-    # a metrics backend gets taken down by a service that looks fine.
-    # Module 7 covers this; the fix is one line of ordering.
     start = perf_counter()
     response = await call_next(request)
     route = request.scope.get("route")
@@ -81,23 +76,18 @@ def health(db: Session = Depends(get_db)) -> dict:
     checks: dict[str, str] = {}
 
     try:
-        # text() is required. SQLAlchemy 2.x rejects a bare string here, and the
-        # resulting ArgumentError makes a working database look broken.
         db.execute(text("SELECT 1"))
         checks["database"] = "ok"
-    except Exception as exc:                      # noqa: BLE001 - reported, not raised
+    except Exception as exc:
         checks["database"] = f"unhealthy: {type(exc).__name__}"
 
     endpoint = os.getenv("S3_ENDPOINT_URL", "")
     if endpoint and "unused" not in endpoint:
         try:
             from app.ports.storage import ObjectStore
-
-            # .list() is a generator, so it does no work until consumed.
-            # Pulling one item is what actually exercises the endpoint.
             next(iter(ObjectStore().list()), None)
             checks["storage"] = "ok"
-        except Exception as exc:                  # noqa: BLE001
+        except Exception as exc:
             checks["storage"] = f"unhealthy: {type(exc).__name__}"
 
     degraded = any(v != "ok" for v in checks.values())
@@ -121,7 +111,7 @@ def current_user(
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "not authenticated")
     try:
         payload = security.decode_access_token(token)
-    except Exception:                              # noqa: BLE001
+    except Exception:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "invalid token") from None
     user = db.scalar(select(models.User).where(models.User.email == payload.get("sub")))
     if user is None or not user.is_active:
@@ -151,8 +141,6 @@ def register(payload: schemas.UserCreate, db: Session = Depends(get_db)):
 def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.scalar(select(models.User).where(models.User.email == form.username))
     if user is None or not security.verify_password(form.password, user.password_hash):
-        # One message for both cases: distinguishing them tells an attacker
-        # which addresses are registered.
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "incorrect email or password")
     return schemas.TokenOut(access_token=security.create_access_token(user.email))
 
@@ -195,3 +183,60 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "task not found")
     db.delete(task)
     db.commit()
+
+# ------------------------------------------------------------------ queues --
+class ScrapeRequest(BaseModel):
+    url: str
+    job_id: int
+
+class ExportRequest(BaseModel):
+    user_id: int
+
+def get_broker_connection():
+    broker_url = os.environ.get("BROKER_URL")
+    try:
+        parameters = pika.URLParameters(broker_url)
+        return pika.BlockingConnection(parameters)
+    except pika.exceptions.AMQPConnectionError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Message broker is currently unavailable"
+        )
+
+@app.post("/api/jobs/scrape", status_code=status.HTTP_202_ACCEPTED)
+def trigger_scrape(request: ScrapeRequest):
+    task_id = str(uuid.uuid4())
+    connection = get_broker_connection()
+    channel = connection.channel()
+    channel.queue_declare(queue="scrape_queue", durable=True)
+    
+    message = {"id": task_id, "url": request.url, "job_id": request.job_id}
+    channel.basic_publish(
+        exchange="",
+        routing_key="scrape_queue",
+        body=json.dumps(message),
+        properties=pika.BasicProperties(
+            delivery_mode=pika.DeliveryMode.Persistent
+        )
+    )
+    connection.close()
+    return {"id": task_id, "status": "accepted", "workflow": "scrape"}
+
+@app.post("/api/exports", status_code=status.HTTP_202_ACCEPTED)
+def trigger_export(request: ExportRequest):
+    task_id = str(uuid.uuid4())
+    connection = get_broker_connection()
+    channel = connection.channel()
+    channel.queue_declare(queue="export_queue", durable=True)
+    
+    message = {"id": task_id, "user_id": request.user_id}
+    channel.basic_publish(
+        exchange="",
+        routing_key="export_queue",
+        body=json.dumps(message),
+        properties=pika.BasicProperties(
+            delivery_mode=pika.DeliveryMode.Persistent
+        )
+    )
+    connection.close()
+    return {"id": task_id, "status": "accepted", "workflow": "export"}

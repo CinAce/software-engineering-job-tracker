@@ -1,0 +1,23 @@
+HTTP/1.1 404 Not Found
+Server: nginx/1.31.6
+Date: Mon, 21 Sep 2026 00:12:44 GMT
+Content-Type: application/json
+Content-Length: 22
+Connection: keep-alive
+
+{"detail":"Not Found"}HTTP/1.1 404 Not Found
+Server: nginx/1.31.6
+Date: Mon, 21 Sep 2026 00:12:57 GMT
+Content-Type: application/json
+Content-Length: 22
+Connection: keep-alive
+
+{"detail":"Not Found"}worker-1  | 2026-09-21 00:07:25,105 INFO Connecting to broker...
+worker-1  | 2026-09-21 00:07:25,121 INFO Pika version 1.4.2 connecting to ('172.24.0.2', 5672)
+worker-1  | 2026-09-21 00:07:25,122 INFO Socket connected: <socket.socket fd=6, family=2, type=1, proto=6, laddr=('172.24.0.3', 53820), raddr=('172.24.0.2', 5672)>
+worker-1  | 2026-09-21 00:07:25,123 INFO Streaming transport linked up: (<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x78d25a184ce0>, _StreamingProtocolShim: <SelectConnection PROTOCOL transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x78d25a184ce0> params=<URLParameters host=broker port=5672 virtual_host=/ ssl=False>>).
+worker-1  | 2026-09-21 00:07:25,132 INFO AMQPConnector - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x78d25a184ce0> params=<URLParameters host=broker port=5672 virtual_host=/ ssl=False>>
+worker-1  | 2026-09-21 00:07:25,132 INFO AMQPConnectionWorkflow - reporting success: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x78d25a184ce0> params=<URLParameters host=broker port=5672 virtual_host=/ ssl=False>>
+worker-1  | 2026-09-21 00:07:25,132 INFO Connection workflow succeeded: <SelectConnection OPEN transport=<pika.adapters.utils.io_services_utils._AsyncPlaintextTransport object at 0x78d25a184ce0> params=<URLParameters host=broker port=5672 virtual_host=/ ssl=False>>
+worker-1  | 2026-09-21 00:07:25,133 INFO Created channel=1
+worker-1  | 2026-09-21 00:07:25,169 INFO Worker is now consuming from scrape_queue and export_queue...

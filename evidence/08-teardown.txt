@@ -1,0 +1,11 @@
+CONTAINER ID   IMAGE             COMMAND                  CREATED        STATUS                         PORTS                                         NAMES
+f123bbececf6   itc531m3-app      "uvicorn app.main:ap…"   4 days ago     Restarting (3) 7 seconds ago                                                 itc531m3-app-1
+285f4000c07f   itc531m3-worker   "python -m app.worker"   4 days ago     Up 8 seconds                   8000/tcp                                      itc531m3-worker-1
+1f4f48630152   postgres:16       "docker-entrypoint.s…"   5 months ago   Up 2 hours                     0.0.0.0:5433->5432/tcp, [::]:5433->5432/tcp   job_tracker_postgres
+DRIVER    VOLUME NAME
+local     de0b2d53a293c35a67c5cfdcdbd06bb13365f7d4ce143faca5762c03f2519f90
+local     itc531m2_pgdata
+local     itc531m3_pgdata
+local     job_tracker_db_pgdata
+local     myapi_bookdata
+local     myqueue-data

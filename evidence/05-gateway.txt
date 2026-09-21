@@ -1,0 +1,46 @@
+HTTP/1.1 200 OK
+Server: nginx/1.31.6
+Date: Mon, 21 Sep 2026 00:17:30 GMT
+Content-Type: text/html; charset=utf-8
+Content-Length: 1009
+Connection: keep-alive
+
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+    <link rel="shortcut icon" href="https://fastapi.tiangolo.com/img/favicon.png">
+    <title>itc531-app - Swagger UI</title>
+    </head>
+    <body>
+    <div id="swagger-ui">
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+    <!-- `SwaggerUIBundle` is now available on the page -->
+    <script>
+    const ui = SwaggerUIBundle({
+        url: '/openapi.json',
+    "dom_id": "#swagger-ui",
+"layout": "BaseLayout",
+"deepLinking": true,
+"showExtensions": true,
+"showCommonExtensions": true,
+oauth2RedirectUrl: window.location.origin + '/docs/oauth2-redirect',
+    presets: [
+        SwaggerUIBundle.presets.apis,
+        SwaggerUIBundle.SwaggerUIStandalonePreset
+        ],
+    })
+    </script>
+    </body>
+    </html>
+    HTTP/1.1 200 OK
+Server: nginx/1.31.6
+Date: Mon, 21 Sep 2026 00:17:36 GMT
+Content-Type: application/json
+Content-Length: 6508
+Connection: keep-alive
+
+{"openapi":"3.1.0","info":{"title":"itc531-app","version":"1.0.0"},"paths":{"/health":{"get":{"summary":"Health","operationId":"health_health_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"additionalProperties":true,"type":"object","title":"Response Health Health Get"}}}}}}},"/":{"get":{"summary":"Root","operationId":"root__get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"additionalProperties":true,"type":"object","title":"Response Root  Get"}}}}}}},"/auth/register":{"post":{"summary":"Register","operationId":"register_auth_register_post","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserCreate"}}},"required":true},"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserOut"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/auth/login":{"post":{"summary":"Login","operationId":"login_auth_login_post","requestBody":{"content":{"application/x-www-form-urlencoded":{"schema":{"$ref":"#/components/schemas/Body_login_auth_login_post"}}},"required":true},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/TokenOut"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/auth/me":{"get":{"summary":"Me","operationId":"me_auth_me_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/UserOut"}}}}},"security":[{"OAuth2PasswordBearer":[]}]}},"/tasks":{"post":{"summary":"Create Task","operationId":"create_task_tasks_post","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/TaskCreate"}}}},"responses":{"201":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/TaskOut"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}},"get":{"summary":"List Tasks","operationId":"list_tasks_tasks_get","parameters":[{"name":"completed","in":"query","required":false,"schema":{"anyOf":[{"type":"boolean"},{"type":"null"}],"title":"Completed"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/TaskOut"},"title":"Response List Tasks Tasks Get"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/tasks/{task_id}":{"get":{"summary":"Get Task","operationId":"get_task_tasks__task_id__get","parameters":[{"name":"task_id","in":"path","required":true,"schema":{"type":"integer","title":"Task Id"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/TaskOut"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}},"delete":{"summary":"Delete Task","operationId":"delete_task_tasks__task_id__delete","parameters":[{"name":"task_id","in":"path","required":true,"schema":{"type":"integer","title":"Task Id"}}],"responses":{"204":{"description":"Successful Response"},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}}},"components":{"schemas":{"Body_login_auth_login_post":{"properties":{"grant_type":{"anyOf":[{"type":"string","pattern":"^password$"},{"type":"null"}],"title":"Grant Type"},"username":{"type":"string","title":"Username"},"password":{"type":"string","format":"password","title":"Password"},"scope":{"type":"string","title":"Scope","default":""},"client_id":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Client Id"},"client_secret":{"anyOf":[{"type":"string"},{"type":"null"}],"format":"password","title":"Client Secret"}},"type":"object","required":["username","password"],"title":"Body_login_auth_login_post"},"HTTPValidationError":{"properties":{"detail":{"items":{"$ref":"#/components/schemas/ValidationError"},"type":"array","title":"Detail"}},"type":"object","title":"HTTPValidationError"},"RoleOut":{"properties":{"id":{"type":"integer","title":"Id"},"name":{"type":"string","title":"Name"}},"type":"object","required":["id","name"],"title":"RoleOut"},"TaskCreate":{"properties":{"title":{"type":"string","maxLength":200,"minLength":1,"title":"Title"}},"type":"object","required":["title"],"title":"TaskCreate"},"TaskOut":{"properties":{"id":{"type":"integer","title":"Id"},"title":{"type":"string","title":"Title"},"completed":{"type":"boolean","title":"Completed"},"created_at":{"type":"string","format":"date-time","title":"Created At"}},"type":"object","required":["id","title","completed","created_at"],"title":"TaskOut"},"TokenOut":{"properties":{"access_token":{"type":"string","title":"Access Token"},"token_type":{"type":"string","title":"Token Type","default":"bearer"}},"type":"object","required":["access_token"],"title":"TokenOut"},"UserCreate":{"properties":{"email":{"type":"string","format":"email","title":"Email"},"password":{"type":"string","maxLength":72,"minLength":12,"title":"Password"}},"type":"object","required":["email","password"],"title":"UserCreate"},"UserOut":{"properties":{"id":{"type":"integer","title":"Id"},"email":{"type":"string","format":"email","title":"Email"},"is_active":{"type":"boolean","title":"Is Active"},"created_at":{"type":"string","format":"date-time","title":"Created At"},"roles":{"items":{"$ref":"#/components/schemas/RoleOut"},"type":"array","title":"Roles","default":[]}},"type":"object","required":["id","email","is_active","created_at"],"title":"UserOut"},"ValidationError":{"properties":{"loc":{"items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"type":"array","title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error Type"},"input":{"title":"Input"},"ctx":{"type":"object","title":"Context"}},"type":"object","required":["loc","msg","type"],"title":"ValidationError"}},"securitySchemes":{"OAuth2PasswordBearer":{"type":"oauth2","flows":{"password":{"scopes":{},"tokenUrl":"auth/login"}}}}}}

@@ -1,0 +1,8 @@
+HTTP/1.1 200 OK
+Server: nginx/1.31.6
+Date: Mon, 21 Sep 2026 00:52:27 GMT
+Content-Type: application/json
+Content-Length: 29
+Connection: keep-alive
+
+{"status": "gateway healthy"}

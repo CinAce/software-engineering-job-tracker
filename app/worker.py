@@ -1,34 +1,70 @@
-"""Module 3 background worker.
+from fastapi import FastAPI, HTTPException, status
+from pydantic import BaseModel
+import pika
+import pika.exceptions
+import os
+import json
+import uuid
 
-Consumes from the AMQP queue and does the slow thing the API declined to do
-inline. Run by `docker compose up -d --wait`; also runnable directly with
-`python -m app.worker`.
-"""
+app = FastAPI(title="Software Engineering Job Tracker API")
 
-from __future__ import annotations
+class ScrapeRequest(BaseModel):
+    url: str
+    job_id: int
 
-import logging
-import time
+class ExportRequest(BaseModel):
+    user_id: int
 
-from app.ports.queue import Queue
+def get_broker_connection():
+    broker_url = os.environ.get("BROKER_URL")
+    try:
+        parameters = pika.URLParameters(broker_url)
+        return pika.BlockingConnection(parameters)
+    except pika.exceptions.AMQPConnectionError:
+        # Returns 503 if the broker is unreachable, as required
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Message broker is currently unavailable"
+        )
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-log = logging.getLogger("worker")
+@app.get("/health")
+def health_check():
+    return {"status": "api healthy"}
 
+@app.post("/api/jobs/scrape", status_code=status.HTTP_202_ACCEPTED)
+def trigger_scrape(request: ScrapeRequest):
+    task_id = str(uuid.uuid4())
+    connection = get_broker_connection()
+    channel = connection.channel()
+    channel.queue_declare(queue="scrape_queue", durable=True)
+    
+    message = {"id": task_id, "url": request.url, "job_id": request.job_id}
+    channel.basic_publish(
+        exchange="",
+        routing_key="scrape_queue",
+        body=json.dumps(message),
+        properties=pika.BasicProperties(
+            delivery_mode=pika.DeliveryMode.Persistent # Enforces message durability
+        )
+    )
+    connection.close()
+    return {"id": task_id, "status": "accepted", "workflow": "scrape"}
 
-def handle(message: dict) -> None:
-    log.info("processing %s", message.get("id", "<no id>"))
-    time.sleep(0.2)  # stands in for the slow work
-    log.info("done %s", message.get("id", "<no id>"))
-
-
-def main() -> None:
-    queue = Queue("itc531.jobs")
-    log.info("connecting to broker (retries for up to 60s while it starts)")
-    queue.connect()
-    log.info("consuming from %s", queue.name)
-    queue.consume(handle)
-
-
-if __name__ == "__main__":
-    main()
+@app.post("/api/exports", status_code=status.HTTP_202_ACCEPTED)
+def trigger_export(request: ExportRequest):
+    task_id = str(uuid.uuid4())
+    connection = get_broker_connection()
+    channel = connection.channel()
+    channel.queue_declare(queue="export_queue", durable=True)
+    
+    message = {"id": task_id, "user_id": request.user_id}
+    channel.basic_publish(
+        exchange="",
+        routing_key="export_queue",
+        body=json.dumps(message),
+        properties=pika.BasicProperties(
+            delivery_mode=pika.DeliveryMode.Persistent # Enforces message durability
+        )
+    )
+    connection.close()
+    return {"id": task_id, "status": "accepted", "workflow": "export"}
