@@ -10,17 +10,17 @@
 * **What you would do about it:** Configure Provisioned Concurrency for the Lambda function to keep a baseline number of instances warm during active hours.
 
 **2. State that does not survive an instance being recycled**
-* **What goes wrong:** In-memory session data or temporary file buffers are unexpectedly lost between requests[cite: 4].
+* **What goes wrong:** In-memory session data or temporary file buffers are unexpectedly lost between requests.
 * **Which component:** FastAPI Web Service.
 * **The trigger:** The cloud provider destroys an idle function container, and a newly provisioned container handles the user's subsequent HTTP request.
-* **The signal you would see and where:** Users suddenly receiving 401 Unauthorized errors mid-session or failed resume uploads, visible in the application logs and API Gateway 4xx metrics[cite: 4].
+* **The signal you would see and where:** Users suddenly receiving 401 Unauthorized errors mid-session or failed resume uploads, visible in the application logs and API Gateway 4xx metrics.
 * **What you would do about it:** Ensure all session state is strictly managed in the PostgreSQL database and have users upload resumes directly to object storage via presigned URLs instead of buffering files on the server.
 
 **3. Concurrency limits and database connections**
-* **What goes wrong:** The database exhausts its maximum allowed connections and rejects new queries, causing API endpoints to fail[cite: 4].
+* **What goes wrong:** The database exhausts its maximum allowed connections and rejects new queries, causing API endpoints to fail.
 * **Which component:** FastAPI Web Service and PostgreSQL Database.
-* **The trigger:** A burst of user traffic spins up hundreds of concurrent Lambda instances, with each instance attempting to open its own direct database connection[cite: 4].
-* **The signal you would see and where:** `DatabaseConnections` maxing out in RDS CloudWatch metrics, and `FATAL: sorry, too many clients already` errors in the application logs[cite: 4].
+* **The trigger:** A burst of user traffic spins up hundreds of concurrent Lambda instances, with each instance attempting to open its own direct database connection.
+* **The signal you would see and where:** `DatabaseConnections` maxing out in RDS CloudWatch metrics, and `FATAL: sorry, too many clients already` errors in the application logs.
 * **What you would do about it:** Implement a managed connection pooler like Amazon RDS Proxy to multiplex connections between the ephemeral functions and the database.
 
 **4. API Gateway hard timeout on synchronous processing**
@@ -32,4 +32,4 @@
 
 ## Reversal Criterion
 
-The decision we would reverse first is running the FastAPI Web Service in the serverless function shape. The specific evidence that would make us reverse it is if the measured p95 latency on the `GET /api/v1/applications` endpoint exceeds 800 milliseconds in Module 7's deployed environment due to cold starts[cite: 4]. If we hit this exact threshold, we will migrate the web service to the container-on-demand shape (AWS Fargate) to ensure consistent user-facing response times[cite: 4].
+The decision we would reverse first is running the FastAPI Web Service in the serverless function shape. The specific evidence that would make us reverse it is if the measured p95 latency on the `GET /api/v1/applications` endpoint exceeds 800 milliseconds in Module 7's deployed environment due to cold starts. If we hit this exact threshold, we will migrate the web service to the container-on-demand shape (AWS Fargate) to ensure consistent user-facing response times.
