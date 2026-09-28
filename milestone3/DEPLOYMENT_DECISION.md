@@ -190,3 +190,19 @@ Our deployment decision keeps the user-facing API simple by running it as a long
 The scrape and export workers are different because their expected workloads are small and event-driven. We chose on-demand containers for those so they do not need to use resources while there is no work.
 
 We did not choose a cloud provider in this section. The C1-C6 requirements describe what a future target needs to provide. The actual target will be compared against these requirements later.
+
+---
+
+## Part 4: Runtime Lifecycle
+
+### Compute Runtime: AWS Lambda (Python)
+* **Target Version:** `python3.12`
+* **End of Support Date:** October 31, 2028
+* **Platform Consequence:** On this date (Phase 1), AWS Lambda stops applying security patches and technical support ends. The code will continue to run, but function creation is blocked on January 10, 2029.
+* **Upgrade Ownership:** Our team owns the upgrade process. We must schedule a migration to a newer Python runtime (e.g., Python 3.13 or 3.14) and update our IaC templates before the October 2028 deadline, which is well past the end of our current academic term.
+
+### Database Engine: Amazon RDS for PostgreSQL
+* **Target Version:** PostgreSQL 16
+* **End of Standard Support Date:** February 28, 2029
+* **Platform Consequence:** At the end of standard support, AWS will automatically enroll the database in RDS Extended Support, which incurs additional monthly charges. The database will not stop running, but it will become significantly more expensive.
+* **Upgrade Ownership:** Our team owns the major version upgrade. While AWS can handle automated minor version patches during scheduled maintenance windows, we must manually test and execute the upgrade to a newer major version (like PostgreSQL 17 or 18) before February 2029.
