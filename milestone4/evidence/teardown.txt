@@ -1,0 +1,49 @@
+Milestone 4 Teardown Evidence
+=============================
+
+$ docker compose --env-file .env.local down --volumes
+ Container itc531-milestone2-notification-subscriber-1 Stopping
+ Container itc531-milestone2-analytics-subscriber-1 Stopping
+ Container itc531-milestone2-gateway-1 Stopping
+ Container itc531-milestone2-worker-1 Stopping
+ Container itc531-milestone2-worker-1 Stopped
+ Container itc531-milestone2-worker-1 Removing
+ Container itc531-milestone2-worker-1 Removed
+ Container itc531-milestone2-gateway-1 Stopped
+ Container itc531-milestone2-gateway-1 Removing
+ Container itc531-milestone2-gateway-1 Removed
+ Container itc531-milestone2-app-1 Stopping
+ Container itc531-milestone2-app-1 Stopped
+ Container itc531-milestone2-app-1 Removing
+ Container itc531-milestone2-app-1 Removed
+ Container itc531-milestone2-storage-1 Stopping
+ Container itc531-milestone2-storage-1 Stopped
+ Container itc531-milestone2-storage-1 Removing
+ Container itc531-milestone2-storage-1 Removed
+ Container itc531-milestone2-analytics-subscriber-1 Stopped
+ Container itc531-milestone2-analytics-subscriber-1 Removing
+ Container itc531-milestone2-analytics-subscriber-1 Removed
+ Container itc531-milestone2-notification-subscriber-1 Stopped
+ Container itc531-milestone2-notification-subscriber-1 Removing
+ Container itc531-milestone2-notification-subscriber-1 Removed
+ Container itc531-milestone2-broker-1 Stopping
+ Container itc531-milestone2-broker-1 Stopped
+ Container itc531-milestone2-broker-1 Removing
+ Container itc531-milestone2-broker-1 Removed
+ Network itc531-milestone2_default Removing
+ Volume itc531-milestone2_appdata Removing
+ Volume itc531-milestone2_s3data Removing
+ Volume itc531-milestone2_appdata Removed
+ Volume itc531-milestone2_s3data Removed
+ Network itc531-milestone2_default Removed
+
+$ docker ps
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
+
+$ docker volume ls | grep itc531
+local     itc531m2_pgdata
+local     itc531m4_pgdata
+local     itc531m5_pgdata
+local     itc531m5_s3data
+
+$ docker volume ls | grep "itc531-milestone2"

@@ -16,19 +16,25 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore",
+    )
 
     # --- identity of this deployment -----------------------------------------
     app_name: str = "itc531-app"
-    environment: str = Field(default="local", description="local | cloud")
+    environment: str = Field(
+        default="local",
+        description="local | cloud",
+    )
     port: int = 8000
 
     # --- storage (S3 API) -----------------------------------------------------
     s3_endpoint_url: str
     s3_bucket: str
-    s3_region: str = "us-east-1"
+    s3_region: str
 
-    # --- relational ------------------------------------------------------------
+    # --- relational -----------------------------------------------------------
     database_url: str
 
     # Who owns the schema.
@@ -46,10 +52,10 @@ class Settings(BaseSettings):
     # here would follow you into Modules 3-7 and break them.
     auto_create_tables: bool = True
 
-    # --- messaging -------------------------------------------------------------
+    # --- messaging ------------------------------------------------------------
     amqp_url: str = "amqp://guest:guest@broker:5672/"
 
-    # --- security --------------------------------------------------------------
+    # --- security -------------------------------------------------------------
     # No default. If this is unset the app refuses to start, which is the
     # correct behavior and is what a hardcoded fallback prevents you from
     # learning.
@@ -57,8 +63,10 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_minutes: int = 30
 
-    # --- CORS ------------------------------------------------------------------
-    cors_origins: list[str] = Field(default_factory=lambda: ["http://localhost:3000"])
+    # --- CORS -----------------------------------------------------------------
+    cors_origins: list[str] = Field(
+        default_factory=lambda: ["http://localhost:3000"]
+    )
 
 
 @lru_cache

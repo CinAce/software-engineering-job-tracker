@@ -29,6 +29,7 @@ import pika.exceptions
 
 from app import models, schemas, security
 from app.db import Base, engine, get_db
+from app.files import router as files_router
 from app.ports.config import get_settings
 
 settings = get_settings()
@@ -55,6 +56,8 @@ app.add_middleware(
 )
 
 app.mount("/metrics", make_asgi_app())
+
+app.include_router(files_router)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
 
@@ -85,6 +88,7 @@ def health(db: Session = Depends(get_db)) -> dict:
     if endpoint and "unused" not in endpoint:
         try:
             from app.ports.storage import ObjectStore
+
             next(iter(ObjectStore().list()), None)
             checks["storage"] = "ok"
         except Exception as exc:
@@ -184,13 +188,16 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
     db.delete(task)
     db.commit()
 
+
 # ------------------------------------------------------------------ queues --
 class ScrapeRequest(BaseModel):
     url: str
     job_id: int
 
+
 class ExportRequest(BaseModel):
     user_id: int
+
 
 def get_broker_connection():
     broker_url = os.environ.get("BROKER_URL")
@@ -200,8 +207,9 @@ def get_broker_connection():
     except pika.exceptions.AMQPConnectionError:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Message broker is currently unavailable"
+            detail="Message broker is currently unavailable",
         )
+
 
 @app.post("/api/jobs/scrape", status_code=status.HTTP_202_ACCEPTED)
 def trigger_scrape(request: ScrapeRequest):
@@ -209,7 +217,7 @@ def trigger_scrape(request: ScrapeRequest):
     connection = get_broker_connection()
     channel = connection.channel()
     channel.queue_declare(queue="scrape_queue", durable=True)
-    
+
     message = {"id": task_id, "url": request.url, "job_id": request.job_id}
     channel.basic_publish(
         exchange="",
@@ -217,10 +225,11 @@ def trigger_scrape(request: ScrapeRequest):
         body=json.dumps(message),
         properties=pika.BasicProperties(
             delivery_mode=pika.DeliveryMode.Persistent
-        )
+        ),
     )
     connection.close()
     return {"id": task_id, "status": "accepted", "workflow": "scrape"}
+
 
 @app.post("/api/exports", status_code=status.HTTP_202_ACCEPTED)
 def trigger_export(request: ExportRequest):
@@ -228,7 +237,7 @@ def trigger_export(request: ExportRequest):
     connection = get_broker_connection()
     channel = connection.channel()
     channel.queue_declare(queue="export_queue", durable=True)
-    
+
     message = {"id": task_id, "user_id": request.user_id}
     channel.basic_publish(
         exchange="",
@@ -236,7 +245,7 @@ def trigger_export(request: ExportRequest):
         body=json.dumps(message),
         properties=pika.BasicProperties(
             delivery_mode=pika.DeliveryMode.Persistent
-        )
+        ),
     )
     connection.close()
     return {"id": task_id, "status": "accepted", "workflow": "export"}

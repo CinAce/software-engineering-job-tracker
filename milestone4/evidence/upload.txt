@@ -1,0 +1,63 @@
+MILESTONE 4 - UPLOAD EVIDENCE
+=============================
+
+1. Create test file
+-rw-r--r--  1 ace  staff    28B Oct  4 18:18 milestone4-upload.txt
+
+2. Upload valid text file
+HTTP/1.1 201 Created
+Server: nginx/1.31.6
+Date: Sun, 04 Oct 2026 22:18:28 GMT
+Content-Type: application/json
+Content-Length: 203
+Connection: keep-alive
+
+{"id":7,"key":"uploads/2026/10/04/d342e15b-8285-4656-b53a-079e0812a59a.txt","original_name":"milestone4-upload.txt","content_type":"text/plain","size_bytes":28,"uploaded_at":"2026-10-04T22:18:28.987665"}
+
+3. List database file records
+[{"id":6,"key":"uploads/2026/10/04/c7672b38-e3a5-4dc8-803f-817e1bd19e1f.txt","original_name":"metadata-test.txt","content_type":"text/plain","size_bytes":14,"uploaded_at":"2026-10-04T21:36:51.593052"},{"id":7,"key":"uploads/2026/10/04/d342e15b-8285-4656-b53a-079e0812a59a.txt","original_name":"milestone4-upload.txt","content_type":"text/plain","size_bytes":28,"uploaded_at":"2026-10-04T22:18:28.987665"}]
+
+4. Reject unsupported file type
+HTTP/1.1 400 Bad Request
+Server: nginx/1.31.6
+Date: Sun, 04 Oct 2026 22:18:29 GMT
+Content-Type: application/json
+Content-Length: 41
+Connection: keep-alive
+
+{"detail":"Unsupported file type: .html"}
+
+5. Reject file larger than 10 MiB
+HTTP/1.1 100 Continue
+
+HTTP/1.1 413 Request Entity Too Large
+Server: nginx/1.31.6
+Date: Sun, 04 Oct 2026 22:18:29 GMT
+Content-Type: application/json
+Content-Length: 49
+Connection: keep-alive
+
+{"detail":"File is larger than the 10 MiB limit"}
+
+6. Current database records
+[{"id":6,"key":"uploads/2026/10/04/c7672b38-e3a5-4dc8-803f-817e1bd19e1f.txt","original_name":"metadata-test.txt","content_type":"text/plain","size_bytes":14,"uploaded_at":"2026-10-04T21:36:51.593052"},{"id":7,"key":"uploads/2026/10/04/d342e15b-8285-4656-b53a-079e0812a59a.txt","original_name":"milestone4-upload.txt","content_type":"text/plain","size_bytes":28,"uploaded_at":"2026-10-04T22:18:28.987665"}]
+
+7. Verify uploaded object exists in object storage
+key: uploads/2026/10/04/d342e15b-8285-4656-b53a-079e0812a59a.txt
+size: 28
+content_type: text/plain
+metadata: {'original-name': 'milestone4-upload.txt'}
+
+8. Delete uploaded file through API
+HTTP/1.1 204 No Content
+Server: nginx/1.31.6
+Date: Sun, 04 Oct 2026 22:18:53 GMT
+Connection: keep-alive
+
+
+
+9. Verify database row was deleted
+[{"id":6,"key":"uploads/2026/10/04/c7672b38-e3a5-4dc8-803f-817e1bd19e1f.txt","original_name":"metadata-test.txt","content_type":"text/plain","size_bytes":14,"uploaded_at":"2026-10-04T21:36:51.593052"}]
+
+10. Verify object was deleted from storage
+PASS: object no longer exists

@@ -1,0 +1,72 @@
+MILESTONE 4 - PRESIGNED URL EVIDENCE
+====================================
+
+1. Presigned GET
+
+API endpoint used to request URL:
+http://localhost:8000/files/6/url
+
+Generated URL:
+http://localhost:9000/itc531-mystore/uploads/2026/10/04/c7672b38-e3a5-4dc8-803f-817e1bd19e1f.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=itc531store%2F20261004%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261004T221916Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=1c4db4a9bab34defa660fc7b4bb138584fe0b2e73d73b909523a3e2a66c6ddab
+
+The generated URL uses localhost:9000, so the file is downloaded
+directly from object storage instead of through FastAPI.
+
+GET expiration: 900 seconds (15 minutes)
+
+Direct GET result:
+HTTP/1.1 200 OK
+content-length: 14
+content-type: text/plain
+etag: "88ba08181690e80a9328209b9e60ffba"
+last-modified: Sun, 04 Oct 2026 21:36:51 GMT
+x-amz-meta-original-name: metadata-test.txt
+accept-ranges: bytes
+x-request-id: a7a34186-19c5-4920-8cc7-8d83374c3e9f
+x-amz-request-id: a7a34186-19c5-4920-8cc7-8d83374c3e9f
+date: Sun, 04 Oct 2026 22:21:13 GMT
+
+Metadata test
+
+
+2. Presigned PUT
+
+API endpoint used to request URL:
+http://localhost:8000/files/presign?filename=presigned-put.txt
+
+Generated object key:
+direct/2026/10/04/f6eb4022-dc98-479c-86a3-d45f3b9375bd.txt
+
+Generated URL:
+http://localhost:9000/itc531-mystore/direct/2026/10/04/f6eb4022-dc98-479c-86a3-d45f3b9375bd.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=itc531store%2F20261004%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261004T222038Z&X-Amz-Expires=900&X-Amz-SignedHeaders=content-type%3Bhost&X-Amz-Signature=1546d284552ca479c56bbef8e8b48be30e9bb97eaf0777ed22564d96aa968202
+
+The generated URL uses localhost:9000, so the upload goes
+directly from the client to object storage.
+
+PUT expiration: 900 seconds (15 minutes)
+
+Bytes sent through FastAPI during the file upload: 0
+
+The API only created the signed URL. The file bytes were sent
+directly to RustFS with the PUT request.
+
+Direct PUT already returned: HTTP/1.1 200 OK
+
+Verify direct object:
+PASS: direct object exists
+key: direct/2026/10/04/f6eb4022-dc98-479c-86a3-d45f3b9375bd.txt
+size: 29
+
+Database records:
+[{"id":6,"key":"uploads/2026/10/04/c7672b38-e3a5-4dc8-803f-817e1bd19e1f.txt","original_name":"metadata-test.txt","content_type":"text/plain","size_bytes":14,"uploaded_at":"2026-10-04T21:36:51.593052"}]
+
+The direct object does not have a database row.
+This is the gap handled by our reconciliation/storage report process.
+
+Expired URLs:
+After the 900-second expiration, the signed request should be rejected
+by object storage and the client must request a new presigned URL.
+
+Signed hostname:
+The hostname in a presigned URL cannot be changed after signing because
+the host is part of the SigV4 signature.

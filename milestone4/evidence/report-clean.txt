@@ -1,0 +1,21 @@
+Storage Report
+==============
+Objects checked: 1
+Database rows checked: 1
+
+Unstamped objects:
+  None
+
+Off-scheme keys:
+  None
+
+Objects with no database row:
+  None
+
+Database rows with no object:
+  None
+
+Bytes by prefix:
+  uploads: 14 bytes
+Grand total: 14 bytes
+exit=0

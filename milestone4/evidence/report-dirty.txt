@@ -1,0 +1,22 @@
+Storage Report
+==============
+Objects checked: 2
+Database rows checked: 1
+
+Unstamped objects:
+  direct/2026/10/04/eb0b4aa4-14b5-4998-adca-a5b8cc728235.txt
+
+Off-scheme keys:
+  None
+
+Objects with no database row:
+  direct/2026/10/04/eb0b4aa4-14b5-4998-adca-a5b8cc728235.txt
+
+Database rows with no object:
+  None
+
+Bytes by prefix:
+  direct: 30 bytes
+  uploads: 14 bytes
+Grand total: 44 bytes
+exit=1
