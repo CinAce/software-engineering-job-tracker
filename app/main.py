@@ -20,7 +20,7 @@ from time import perf_counter
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from prometheus_client import Counter, Histogram, make_asgi_app
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
@@ -28,6 +28,7 @@ import pika
 import pika.exceptions
 
 from app import models, schemas, security
+from app.auth import current_user
 from app.db import Base, engine, get_db
 from app.files import router as files_router
 from app.ports.config import get_settings
@@ -56,10 +57,6 @@ app.add_middleware(
 )
 
 app.mount("/metrics", make_asgi_app())
-
-app.include_router(files_router)
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
 
 
 @app.middleware("http")
@@ -108,21 +105,6 @@ def root() -> dict:
 
 
 # -------------------------------------------------------------------- auth --
-def current_user(
-    token: str | None = Depends(oauth2_scheme), db: Session = Depends(get_db)
-) -> models.User:
-    if not token:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "not authenticated")
-    try:
-        payload = security.decode_access_token(token)
-    except Exception:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "invalid token") from None
-    user = db.scalar(select(models.User).where(models.User.email == payload.get("sub")))
-    if user is None or not user.is_active:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "unknown or inactive user")
-    return user
-
-
 @app.post("/auth/register", response_model=schemas.UserOut, status_code=201)
 def register(payload: schemas.UserCreate, db: Session = Depends(get_db)):
     if db.scalar(select(models.User).where(models.User.email == payload.email)):
@@ -144,6 +126,7 @@ def register(payload: schemas.UserCreate, db: Session = Depends(get_db)):
 @app.post("/auth/login", response_model=schemas.TokenOut)
 def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.scalar(select(models.User).where(models.User.email == form.username))
+    # DEMO ONLY: missing users skip bcrypt, so response timing may differ.
     if user is None or not security.verify_password(form.password, user.password_hash):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "incorrect email or password")
     return schemas.TokenOut(access_token=security.create_access_token(user.email))
@@ -154,10 +137,31 @@ def me(user: models.User = Depends(current_user)):
     return user
 
 
+def require_role(role_name: str):
+    """Reusable role requirement, chained to token authentication."""
+    def dependency(user: models.User = Depends(current_user)) -> models.User:
+        if not any(role.name == role_name for role in user.roles):
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "insufficient permissions")
+        return user
+    return dependency
+
+
+def task_access(task: models.Task, user: models.User) -> None:
+    if task.owner_id != user.id and not any(r.name == "admin" for r in user.roles):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "not task owner")
+
+
+@app.get("/admin/tasks", response_model=list[schemas.TaskOut])
+def admin_tasks(db: Session = Depends(get_db), _: models.User = Depends(require_role("admin"))):
+    return list(db.scalars(select(models.Task).order_by(models.Task.id)))
+
+
+app.include_router(files_router, dependencies=[Depends(current_user)])
+
 # ------------------------------------------------------------------- tasks --
 @app.post("/tasks", response_model=schemas.TaskOut, status_code=201)
-def create_task(payload: schemas.TaskCreate, db: Session = Depends(get_db)):
-    task = models.Task(title=payload.title)
+def create_task(payload: schemas.TaskCreate, db: Session = Depends(get_db), user: models.User = Depends(current_user)):
+    task = models.Task(title=payload.title, owner_id=user.id)
     db.add(task)
     db.commit()
     db.refresh(task)
@@ -165,38 +169,40 @@ def create_task(payload: schemas.TaskCreate, db: Session = Depends(get_db)):
 
 
 @app.get("/tasks", response_model=list[schemas.TaskOut])
-def list_tasks(completed: bool | None = None, db: Session = Depends(get_db)):
-    stmt = select(models.Task)
+def list_tasks(completed: bool | None = None, db: Session = Depends(get_db), user: models.User = Depends(current_user)):
+    stmt = select(models.Task).where(models.Task.owner_id == user.id)
     if completed is not None:
         stmt = stmt.where(models.Task.completed == completed)
     return list(db.scalars(stmt))
 
 
 @app.get("/tasks/{task_id}", response_model=schemas.TaskOut)
-def get_task(task_id: int, db: Session = Depends(get_db)):
+def get_task(task_id: int, db: Session = Depends(get_db), user: models.User = Depends(current_user)):
     task = db.get(models.Task, task_id)
     if task is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "task not found")
+    task_access(task, user)
     return task
 
 
 @app.delete("/tasks/{task_id}", status_code=204)
-def delete_task(task_id: int, db: Session = Depends(get_db)):
+def delete_task(task_id: int, db: Session = Depends(get_db), user: models.User = Depends(current_user)):
     task = db.get(models.Task, task_id)
     if task is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "task not found")
+    task_access(task, user)
     db.delete(task)
     db.commit()
 
 
 # ------------------------------------------------------------------ queues --
 class ScrapeRequest(BaseModel):
-    url: str
-    job_id: int
+    url: str = Field(min_length=8, pattern=r"^https?://")
+    job_id: int = Field(gt=0)
 
 
 class ExportRequest(BaseModel):
-    user_id: int
+    user_id: int = Field(gt=0)
 
 
 def get_broker_connection():
@@ -212,7 +218,7 @@ def get_broker_connection():
 
 
 @app.post("/api/jobs/scrape", status_code=status.HTTP_202_ACCEPTED)
-def trigger_scrape(request: ScrapeRequest):
+def trigger_scrape(request: ScrapeRequest, _: models.User = Depends(current_user)):
     task_id = str(uuid.uuid4())
     connection = get_broker_connection()
     channel = connection.channel()
@@ -232,7 +238,9 @@ def trigger_scrape(request: ScrapeRequest):
 
 
 @app.post("/api/exports", status_code=status.HTTP_202_ACCEPTED)
-def trigger_export(request: ExportRequest):
+def trigger_export(request: ExportRequest, user: models.User = Depends(current_user)):
+    if request.user_id != user.id and not any(r.name == "admin" for r in user.roles):
+        raise HTTPException(403, "cannot export another user")
     task_id = str(uuid.uuid4())
     connection = get_broker_connection()
     channel = connection.channel()
@@ -252,12 +260,12 @@ def trigger_export(request: ExportRequest):
 
 
 class EventPublishRequest(BaseModel):
-    event_type: str
-    data: dict
+    event_type: str = Field(min_length=1)
+    data: dict = Field(min_length=1)
 
 
 @app.post("/api/events/publish", status_code=status.HTTP_202_ACCEPTED)
-def publish_domain_event(request: EventPublishRequest):
+def publish_domain_event(request: EventPublishRequest, _: models.User = Depends(require_role("admin"))):
     from app.events.publisher import publish_event
 
     try:

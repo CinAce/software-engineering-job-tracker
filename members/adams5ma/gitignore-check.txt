@@ -1,0 +1,5 @@
+=== Git ignore verification ===
+.gitignore:9:.env.local	.env.local
+.gitignore:6:adapters/*.env	adapters/aws.env
+
+=== Tracked credential check ===

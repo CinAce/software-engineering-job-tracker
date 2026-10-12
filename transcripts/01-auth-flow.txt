@@ -1,0 +1,16 @@
+=== D1 AUTHENTICATION ===
+Owner registration: HTTP 201 (expected 201)
+Owner login: HTTP 200 (expected 200)
+Other user registration: HTTP 201 (expected 201)
+Other user login: HTTP 200 (expected 200)
+Admin registration: HTTP 201 (expected 201)
+Admin login: HTTP 200 (expected 200)
+Protected endpoint without token: HTTP 401 (expected 401)
+Protected endpoint with valid token: HTTP 200 (expected 200)
+Duplicate registration: HTTP 409 (expected 409)
+Wrong password: HTTP 401 (expected 401)
+Unknown user: HTTP 401 (expected 401)
+Malformed token: HTTP 401 (expected 401)
+Missing-secret startup check:
+Startup exit code: 1
+PASS: Application refuses to start with empty JWT_SECRET

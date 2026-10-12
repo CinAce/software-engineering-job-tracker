@@ -1,0 +1,8 @@
+=== D3 HARDENING ===
+Empty task title: HTTP 422 (expected 422)
+Invalid scrape URL: HTTP 422 (expected 422)
+Short registration password: HTTP 422 (expected 422)
+Password exceeding 72 characters: HTTP 422 (expected 422)
+PASS: Request validation rejects invalid input
+
+ALL EVIDENCE CHECKS PASSED

@@ -26,6 +26,7 @@ settings = get_settings()
 # bcrypt hashes at most 72 bytes and raises on anything longer. Silently
 # truncating would mean two different long passwords hash identically, so the
 # API rejects them instead and says why.
+# Cost factor 12 selected in 2026; benchmark on deployment hardware before production.
 MAX_PASSWORD_BYTES = 72
 
 

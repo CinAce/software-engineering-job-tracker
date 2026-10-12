@@ -44,12 +44,31 @@ def test_metrics_needs_trailing_slash(client: TestClient) -> None:
 
 
 def test_task_round_trip(client: TestClient) -> None:
-    created = client.post("/tasks", json={"title": "write the adapter"})
+    creds = {
+        "email": f"task-user-{uuid4().hex[:12]}@example.edu",
+        "password": "a-sufficiently-long-passphrase",
+    }
+    registered = client.post("/auth/register", json=creds)
+    assert registered.status_code == 201, registered.text
+
+    login = client.post(
+        "/auth/login",
+        data={"username": creds["email"], "password": creds["password"]},
+    )
+    assert login.status_code == 200, login.text
+    headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
+
+    created = client.post("/tasks", json={"title": "write the adapter"}, headers=headers)
     assert created.status_code == 201, created.text
     task_id = created.json()["id"]
-    assert client.get(f"/tasks/{task_id}").json()["title"] == "write the adapter"
-    assert client.delete(f"/tasks/{task_id}").status_code == 204
-    assert client.get(f"/tasks/{task_id}").status_code == 404
+
+    fetched = client.get(f"/tasks/{task_id}", headers=headers)
+    assert fetched.status_code == 200, fetched.text
+    assert fetched.json()["title"] == "write the adapter"
+
+    deleted = client.delete(f"/tasks/{task_id}", headers=headers)
+    assert deleted.status_code == 204, deleted.text
+    assert client.get(f"/tasks/{task_id}", headers=headers).status_code == 404
 
 
 def test_register_login_and_me(client: TestClient) -> None:

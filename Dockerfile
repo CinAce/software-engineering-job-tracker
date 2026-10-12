@@ -48,6 +48,7 @@ WORKDIR /app
 COPY --chown=appuser:appuser app/       ./app/
 COPY --chown=appuser:appuser functions/ ./functions/
 COPY --chown=appuser:appuser tests/     ./tests/
+COPY --chown=appuser:appuser scripts/   ./scripts/
 # migrations/ is created by the student in Module 2 and bind-mounted by
 # compose.week2.yml, so it is deliberately not baked into the image.
 

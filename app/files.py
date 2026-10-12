@@ -10,6 +10,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app import schemas
+from app.auth import current_user
+from app.models import User
 from app.db import get_db
 from app.models import StoredFile
 from app.ports.storage import ObjectStore
@@ -75,6 +77,7 @@ def read_upload(upload: UploadFile) -> bytes:
 def upload_file(
     file: Annotated[UploadFile, File(...)],
     db: Session = Depends(get_db),
+    user: User = Depends(current_user),
 ):
     original_name = file.filename or "unnamed"
     content_type = content_type_for(original_name)
@@ -97,6 +100,7 @@ def upload_file(
         )
 
     row = StoredFile(
+        owner_id=user.id,
         key=key,
         original_name=original_name,
         content_type=content_type,
@@ -132,6 +136,7 @@ def upload_file(
 def upload_multiple_files(
     files: Annotated[list[UploadFile], File(...)],
     db: Session = Depends(get_db),
+    user: User = Depends(current_user),
 ):
     prepared = []
 
@@ -168,6 +173,7 @@ def upload_multiple_files(
             )
 
         row = StoredFile(
+        owner_id=user.id,
             key=item["key"],
             original_name=item["original_name"],
             content_type=item["content_type"],
@@ -216,8 +222,9 @@ def list_files(
         ge=0,
     ),
     db: Session = Depends(get_db),
+    user: User = Depends(current_user),
 ):
-    statement = select(StoredFile)
+    statement = select(StoredFile).where(StoredFile.owner_id == user.id)
 
     if content_type:
         statement = statement.where(
@@ -245,6 +252,7 @@ def list_files(
 def download_file(
     file_id: int,
     db: Session = Depends(get_db),
+    user: User = Depends(current_user),
 ):
     row = db.get(StoredFile, file_id)
 
@@ -253,6 +261,9 @@ def download_file(
             status_code=404,
             detail="File not found",
         )
+
+    if row.owner_id != user.id and not any(role.name == 'admin' for role in user.roles):
+        raise HTTPException(status_code=403, detail='Forbidden')
 
     store = get_store()
 
@@ -283,6 +294,7 @@ def download_file(
 def delete_file(
     file_id: int,
     db: Session = Depends(get_db),
+    user: User = Depends(current_user),
 ):
     row = db.get(StoredFile, file_id)
 
@@ -291,6 +303,9 @@ def delete_file(
             status_code=404,
             detail="File not found",
         )
+
+    if row.owner_id != user.id and not any(role.name == 'admin' for role in user.roles):
+        raise HTTPException(status_code=403, detail='Forbidden')
 
     store = get_store()
 
@@ -330,6 +345,7 @@ def presigned_get(
         le=3600,
     ),
     db: Session = Depends(get_db),
+    user: User = Depends(current_user),
 ):
     row = db.get(StoredFile, file_id)
 
@@ -338,6 +354,9 @@ def presigned_get(
             status_code=404,
             detail="File not found",
         )
+
+    if row.owner_id != user.id and not any(role.name == 'admin' for role in user.roles):
+        raise HTTPException(status_code=403, detail='Forbidden')
 
     store = get_store()
 
@@ -367,11 +386,12 @@ def presigned_put(
         ge=60,
         le=3600,
     ),
+    user: User = Depends(current_user),
 ):
     content_type = content_type_for(filename)
     key = new_key(
         filename,
-        prefix="direct",
+        prefix=f"direct/user-{user.id}",
     )
 
     store = get_store()
@@ -395,3 +415,52 @@ def presigned_put(
         "content_type": content_type,
         "expires_in": expires_in,
     }
+
+@router.post("/presign/confirm", response_model=schemas.StoredFileOut)
+def confirm_presigned_upload(
+    key: str,
+    filename: str,
+    user: User = Depends(current_user),
+    db: Session = Depends(get_db),
+):
+    expected_prefix = f"direct/user-{user.id}/"
+
+    if not key.startswith(expected_prefix):
+        raise HTTPException(
+            status_code=403,
+            detail="Cannot confirm another user's upload",
+        )
+
+    existing = db.scalar(
+        select(StoredFile).where(StoredFile.key == key)
+    )
+
+    if existing is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="Upload already confirmed",
+        )
+
+    store = get_store()
+
+    try:
+        metadata = store.head(key)
+    except Exception:
+        raise HTTPException(
+            status_code=404,
+            detail="Uploaded object not found",
+        )
+
+    row = StoredFile(
+        owner_id=user.id,
+        key=key,
+        original_name=filename,
+        content_type=content_type_for(filename),
+        size_bytes=metadata["ContentLength"],
+    )
+
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+
+    return row

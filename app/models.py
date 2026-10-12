@@ -38,6 +38,7 @@ class User(Base):
 class Task(Base):
     __tablename__ = "tasks"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    owner_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, index=True)
     title: Mapped[str] = mapped_column(String(200))
     completed: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[dt.datetime] = mapped_column(
@@ -48,6 +49,9 @@ class Task(Base):
 class StoredFile(Base):
     __tablename__ = "stored_files"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    owner_id: Mapped[int | None] = mapped_column(
+    ForeignKey("users.id"), nullable=True, index=True
+)
     key: Mapped[str] = mapped_column(String(512), unique=True, index=True)
     original_name: Mapped[str] = mapped_column(String(255))
     content_type: Mapped[str] = mapped_column(String(128))

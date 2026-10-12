@@ -21,7 +21,7 @@ class RoleOut(BaseModel):
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=12, max_length=72)
+    password: str = Field(min_length=12, max_length=72)  # characters; UTF-8 bytes checked before bcrypt
 
 
 class UserOut(BaseModel):
@@ -48,6 +48,7 @@ class TaskOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
     title: str
+    owner_id: int | None = None
     completed: bool
     created_at: dt.datetime
 
