@@ -14,7 +14,7 @@ Users get `user` on registration; `admin` can be assigned only through `python s
 
 - `app/main.py`: login's missing-user branch skips bcrypt; timing is not equalized (marked DEMO ONLY inline).
 - `app/ports/config.py`: local auto-create-tables and local CORS defaults must be reviewed before deployment.
-- File routes require a token, but **file ownership is not yet enforced**; add `StoredFile.owner_id`, migrate existing rows, and check ownership on read/delete/URL before exposing this API.
+- File routes require authentication and enforce ownership checks. The `StoredFile.owner_id` relationship and file security tests cover owner-based access. Existing databases still require a schema migration before deployment.
 - Ensure all persistent databases receive a migration adding `tasks.owner_id`; `create_all()` does not alter existing tables.
 - Confirm all request bodies have constraints, audit every public endpoint, add rate limits, rotate secrets, restrict CORS and metrics, and run attack tests.
 - Never deploy with a default JWT secret. `.env` must be ignored and `.env.example` contains placeholders only. SQL queries use SQLAlchemy ORM or fixed parameterized text.

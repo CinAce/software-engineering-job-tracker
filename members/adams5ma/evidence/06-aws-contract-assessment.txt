@@ -1,0 +1,48 @@
+Milestone 5 - AWS Capability Contract Assessment
+
+Provider: AWS
+Region: us-east-2
+Compute: ECS / Fargate
+Storage: S3
+
+C1 - Compute
+ECS API access verified.
+No ECS clusters were present during verification.
+Container deployment and HTTPS endpoint not demonstrated.
+
+C2 - Storage
+Signed S3 bucket enumeration succeeded.
+Bucket: itc531-myauth-bucket
+Application-level object upload/download not demonstrated.
+
+C3 - Credentials
+Scoped IAM user identity verified.
+IAM policy screenshots collected.
+The account uses read-only verification permissions.
+Deployment and deletion permissions are not established.
+
+C4 - Resource management
+ECS resource enumeration succeeded.
+Deletion capability is not verified.
+
+C5 - Spend alerts
+Monthly AWS budget: $5.
+Actual alerts: 85% and 100%.
+Forecasted alert: 100%.
+A budget notification is not a hard spending limit.
+
+C6 - Cost estimate
+10 hours of Fargate plus 1 GB-month of S3:
+Estimated subtotal: $0.146425.
+
+This is a limited usage estimate, not a complete
+deployment estimate. Networking, public IPv4,
+load balancing, logs, image storage, requests,
+and transfer costs require further assessment.
+
+Conclusion
+AWS read-only verification and supporting evidence
+are complete. Full C1-C6 contract satisfaction
+has NOT been established.
+
+No AWS deployment or deletion was performed.
