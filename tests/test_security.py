@@ -3,14 +3,14 @@ import jwt
 import datetime as dt
 from fastapi.testclient import TestClient
 
-from app.main import app
-from app.ports.config import get_settings
+from app.main import app  # noqa: E402
+from app.ports.config import get_settings  # noqa: E402
 from app import security
 
 client = TestClient(app)
 settings = get_settings()
 
-from app.db import Base, engine
+from app.db import Base, engine  # noqa: E402
 Base.metadata.create_all(bind=engine)
 
 # Unique credentials to prevent database collisions

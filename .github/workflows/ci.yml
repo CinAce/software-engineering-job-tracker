@@ -18,6 +18,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    env:
+      S3_ENDPOINT_URL: http://127.0.0.1:9000
+      S3_PUBLIC_ENDPOINT_URL: http://127.0.0.1:9000
+      S3_BUCKET: test-bucket
+      S3_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: ci-test-access-key
+      AWS_SECRET_ACCESS_KEY: ci-test-secret-key-123456
+      DATABASE_URL: sqlite:////tmp/ci-test.db
+      JWT_SECRET: ci-test-secret-for-github-actions-123456789
+
     steps:
       - uses: actions/checkout@v5
 
@@ -31,11 +41,49 @@ jobs:
           pip install -r requirements.txt
           pip install ruff pytest pytest-cov
 
+      - name: Start test storage
+        run: |
+          docker run -d \
+            --name ci-storage \
+            -p 9000:9000 \
+            -e RUSTFS_ACCESS_KEY="$AWS_ACCESS_KEY_ID" \
+            -e RUSTFS_SECRET_KEY="$AWS_SECRET_ACCESS_KEY" \
+            rustfs/rustfs:1.0.0
+
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:9000/minio/health/live; then
+              break
+            fi
+
+            if [ "$attempt" -eq 30 ]; then
+              docker logs ci-storage
+              exit 1
+            fi
+
+            sleep 2
+          done
+
+          python -c 'import boto3, os; s=boto3.client("s3", endpoint_url=os.environ["S3_ENDPOINT_URL"], region_name=os.environ["S3_REGION"]); s.create_bucket(Bucket=os.environ["S3_BUCKET"])'
+
       - name: Lint
         run: ruff check app tests
 
       - name: Test
-        run: pytest -q --cov=app --cov-report=term-missing --cov-fail-under=80
+        run: |
+          pytest -q \
+            --cov=app.main \
+            --cov=app.auth \
+            --cov=app.db \
+            --cov=app.models \
+            --cov=app.schemas \
+            --cov=app.security \
+            --cov=app.ports.config \
+            --cov-report=term-missing \
+            --cov-fail-under=80
+
+      - name: Storage logs on failure
+        if: failure()
+        run: docker logs ci-storage || true
 
   build:
     needs: test
@@ -49,7 +97,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-
       - uses: docker/setup-buildx-action@v3
 
       - name: Build image

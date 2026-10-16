@@ -19,7 +19,7 @@ from time import perf_counter
 
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, Field
 from prometheus_client import Counter, Histogram, make_asgi_app
 from sqlalchemy import select, text
