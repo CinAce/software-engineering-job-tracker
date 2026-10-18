@@ -70,7 +70,7 @@ jobs:
 
       - name: Test
         run: |
-          pytest -q \
+          pytest tests/ -q \
             --cov=app.main \
             --cov=app.auth \
             --cov=app.db \
