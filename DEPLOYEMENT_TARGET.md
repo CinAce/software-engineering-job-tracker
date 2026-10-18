@@ -32,3 +32,16 @@ The team evaluated both AWS and GCP adapters against the six course capability c
 * **AWS Primary Infrastructure Lead:** `adams5ma` (Configuration, container deployment, pipeline alignment).
 * **GCP Fallback & Verification Lead:** `diazm1a` (Cross-cloud validation, health-check replication, test harness verification).
 * **Shared Responsibilities:** Test suite maintenance (`tests/test_security.py`), environment secret isolation, and documentation upkeep.
+
+## Milestone 6 Provider Update
+
+Date: October 18, 2026
+
+The team is using Google Cloud Platform for Milestone 6,
+rather than the earlier AWS primary target.
+
+The application was deployed to Google Cloud Run in
+project itc531-module7, region us-central1.
+
+The original Milestone 5 provider evaluation is retained
+above for historical context.

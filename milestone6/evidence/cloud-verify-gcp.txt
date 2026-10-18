@@ -1,0 +1,25 @@
+================================================================
+ITC 531 capability contract check
+adapter : gcp
+date    : 2026-10-18 21:54 UTC
+================================================================
+provider:        Google Cloud (GCP)
+project:         itc531-module7
+region:          us-central1
+compute service: Cloud Run
+storage service: Cloud Storage XML API (SigV4)
+auth model:      gcloud user OAuth with project IAM; project-scoped HMAC service account
+contract check:  2026-10-18
+----------------------------------------------------------------
+C1 compute      : OK — Cloud Run API authenticated; project=itc531-module7
+C2 storage      : OK — signed SigV4 list-buckets HTTP 200
+C3 credential   : OK — storage HMAC service account: roles/storage.bucketViewer on project itc531-module7
+                    Cloud Run deployment uses separately authenticated gcloud user OAuth.
+C4 enumerate    : OK — all configured resource categories readable (3 present)
+C5 spend alert : OK — $5 Monthly Budget Alert; USD 5 configured
+C6 cost model  : OK — Cloud Run free allowance (2M requests/month); 0 min instances
+                    Demo traffic expected under USD $5; excludes unrelated project usage.
+                    https://cloud.google.com/run/pricing
+----------------------------------------------------------------
+================================================================
+CONTRACT SATISFIED. You may now create resources. Submit this output.

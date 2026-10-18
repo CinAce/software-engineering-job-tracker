@@ -1,0 +1,419 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.73kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.12.11-slim-bookworm
+#2 ...
+
+#3 [auth] library/python:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.12.11-slim-bookworm
+#2 DONE 3.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 219B done
+#4 DONE 0.0s
+
+#5 [builder 1/4] FROM docker.io/library/python:3.12.11-slim-bookworm@sha256:519591d6871b7bc437060736b9f7456b8731f1499a57e22e6c285135ae657bf7
+#5 CACHED
+
+#6 [internal] load build context
+#6 transferring context: 23.43kB 0.0s done
+#6 DONE 0.0s
+
+#7 [builder 2/4] WORKDIR /build
+#7 DONE 0.0s
+
+#8 [builder 3/4] COPY requirements.txt .
+#8 DONE 0.0s
+
+#9 [builder 4/4] RUN pip install --prefix=/install -r requirements.txt
+#9 1.520 Collecting fastapi==0.140.10 (from -r requirements.txt (line 10))
+#9 1.704   Downloading fastapi-0.140.10-py3-none-any.whl.metadata (27 kB)
+#9 1.766 Collecting uvicorn==0.51.0 (from uvicorn[standard]==0.51.0->-r requirements.txt (line 11))
+#9 1.793   Downloading uvicorn-0.51.0-py3-none-any.whl.metadata (6.6 kB)
+#9 1.853 Collecting gunicorn==26.0.0 (from -r requirements.txt (line 12))
+#9 1.874   Downloading gunicorn-26.0.0-py3-none-any.whl.metadata (5.4 kB)
+#9 2.021 Collecting pydantic==2.13.4 (from -r requirements.txt (line 13))
+#9 2.044   Downloading pydantic-2.13.4-py3-none-any.whl.metadata (109 kB)
+#9 2.101 Collecting pydantic-settings==2.14.2 (from -r requirements.txt (line 14))
+#9 2.122   Downloading pydantic_settings-2.14.2-py3-none-any.whl.metadata (3.4 kB)
+#9 2.146 Collecting email-validator==2.3.0 (from -r requirements.txt (line 15))
+#9 2.167   Downloading email_validator-2.3.0-py3-none-any.whl.metadata (26 kB)
+#9 2.197 Collecting python-multipart==0.0.32 (from -r requirements.txt (line 16))
+#9 2.216   Downloading python_multipart-0.0.32-py3-none-any.whl.metadata (2.1 kB)
+#9 2.471 Collecting sqlalchemy==2.0.51 (from -r requirements.txt (line 19))
+#9 2.493   Downloading sqlalchemy-2.0.51-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.5 kB)
+#9 2.532 Collecting alembic==1.18.5 (from -r requirements.txt (line 20))
+#9 2.555   Downloading alembic-1.18.5-py3-none-any.whl.metadata (7.2 kB)
+#9 2.617 Collecting psycopg2-binary==2.9.12 (from -r requirements.txt (line 21))
+#9 2.641   Downloading psycopg2_binary-2.9.12-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+#9 2.899 Collecting boto3==1.43.57 (from -r requirements.txt (line 24))
+#9 2.922   Downloading boto3-1.43.57-py3-none-any.whl.metadata (6.6 kB)
+#9 2.960 Collecting pika==1.4.2 (from -r requirements.txt (line 27))
+#9 2.986   Downloading pika-1.4.2-py3-none-any.whl.metadata (13 kB)
+#9 3.031 Collecting bcrypt==5.0.0 (from -r requirements.txt (line 33))
+#9 3.055   Downloading bcrypt-5.0.0-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (10 kB)
+#9 3.082 Collecting pyjwt==2.13.0 (from pyjwt[crypto]==2.13.0->-r requirements.txt (line 34))
+#9 3.104   Downloading pyjwt-2.13.0-py3-none-any.whl.metadata (3.4 kB)
+#9 3.126 Collecting slowapi==0.1.10 (from -r requirements.txt (line 35))
+#9 3.151   Downloading slowapi-0.1.10-py3-none-any.whl.metadata (3.3 kB)
+#9 3.294 Collecting pillow==12.3.0 (from -r requirements.txt (line 38))
+#9 3.318   Downloading pillow-12.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+#9 3.347 Collecting prometheus-client==0.26.0 (from -r requirements.txt (line 41))
+#9 3.369   Downloading prometheus_client-0.26.0-py3-none-any.whl.metadata (2.1 kB)
+#9 3.396 Collecting httpx==0.28.1 (from -r requirements.txt (line 44))
+#9 3.420   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+#9 3.445 Collecting httpx2==2.9.1 (from -r requirements.txt (line 45))
+#9 3.467   Downloading httpx2-2.9.1-py3-none-any.whl.metadata (8.2 kB)
+#9 3.507 Collecting requests==2.34.2 (from -r requirements.txt (line 46))
+#9 3.538   Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+#9 3.570 Collecting tenacity==9.1.4 (from -r requirements.txt (line 47))
+#9 3.591   Downloading tenacity-9.1.4-py3-none-any.whl.metadata (1.2 kB)
+#9 3.643 Collecting pytest==9.1.1 (from -r requirements.txt (line 48))
+#9 3.673   Downloading pytest-9.1.1-py3-none-any.whl.metadata (7.6 kB)
+#9 3.727 Collecting pytest-cov==7.1.0 (from -r requirements.txt (line 49))
+#9 3.751   Downloading pytest_cov-7.1.0-py3-none-any.whl.metadata (32 kB)
+#9 3.782 Collecting pip-audit==2.9.0 (from -r requirements.txt (line 52))
+#9 3.806   Downloading pip_audit-2.9.0-py3-none-any.whl.metadata (27 kB)
+#9 4.108 Collecting ruff==0.15.6 (from -r requirements.txt (line 53))
+#9 4.132   Downloading ruff-0.15.6-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (26 kB)
+#9 4.239 Collecting setuptools==83.0.0 (from -r requirements.txt (line 63))
+#9 4.281   Downloading setuptools-83.0.0-py3-none-any.whl.metadata (6.6 kB)
+#9 4.332 Collecting starlette>=0.46.0 (from fastapi==0.140.10->-r requirements.txt (line 10))
+#9 4.353   Downloading starlette-1.9.0-py3-none-any.whl.metadata (6.6 kB)
+#9 4.390 Collecting typing-extensions>=4.8.0 (from fastapi==0.140.10->-r requirements.txt (line 10))
+#9 4.411   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+#9 4.433 Collecting typing-inspection>=0.4.2 (from fastapi==0.140.10->-r requirements.txt (line 10))
+#9 4.452   Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+#9 4.471 Collecting annotated-doc>=0.0.2 (from fastapi==0.140.10->-r requirements.txt (line 10))
+#9 4.492   Downloading annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+#9 4.519 Collecting click>=7.0 (from uvicorn==0.51.0->uvicorn[standard]==0.51.0->-r requirements.txt (line 11))
+#9 4.540   Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+#9 4.563 Collecting h11>=0.8 (from uvicorn==0.51.0->uvicorn[standard]==0.51.0->-r requirements.txt (line 11))
+#9 4.585   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#9 4.610 Collecting packaging (from gunicorn==26.0.0->-r requirements.txt (line 12))
+#9 4.631   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+#9 4.652 Collecting annotated-types>=0.6.0 (from pydantic==2.13.4->-r requirements.txt (line 13))
+#9 4.691   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+#9 ...
+
+#10 [runtime 2/9] RUN apt-get update  && apt-get install --no-install-recommends -y curl  && rm -rf /var/lib/apt/lists/*  && useradd --create-home --uid 10001 appuser
+#10 0.348 Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+#10 0.391 Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+#10 0.392 Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [34.8 kB]
+#10 0.749 Get:4 http://deb.debian.org/debian bookworm/main amd64 Packages [8790 kB]
+#10 1.928 Get:5 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+#10 1.931 Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [354 kB]
+#10 2.614 Fetched 9393 kB in 2s (3948 kB/s)
+#10 2.614 Reading package lists...
+#10 2.966 Reading package lists...
+#10 3.271 Building dependency tree...
+#10 3.347 Reading state information...
+#10 3.419 The following additional packages will be installed:
+#10 3.419   libbrotli1 libcurl4 libldap-2.5-0 libnghttp2-14 libpsl5 librtmp1 libsasl2-2
+#10 3.420   libsasl2-modules-db libssh2-1
+#10 3.420 Recommended packages:
+#10 3.420   libldap-common publicsuffix libsasl2-modules
+#10 3.475 The following NEW packages will be installed:
+#10 3.475   curl libbrotli1 libcurl4 libldap-2.5-0 libnghttp2-14 libpsl5 librtmp1
+#10 3.475   libsasl2-2 libsasl2-modules-db libssh2-1
+#10 3.543 0 upgraded, 10 newly installed, 0 to remove and 29 not upgraded.
+#10 3.543 Need to get 1614 kB of archives.
+#10 3.543 After this operation, 3813 kB of additional disk space will be used.
+#10 3.543 Get:1 http://deb.debian.org/debian bookworm/main amd64 libbrotli1 amd64 1.0.9-2+b6 [275 kB]
+#10 3.609 Get:2 http://deb.debian.org/debian bookworm/main amd64 libsasl2-modules-db amd64 2.1.28+dfsg-10 [20.3 kB]
+#10 3.613 Get:3 http://deb.debian.org/debian bookworm/main amd64 libsasl2-2 amd64 2.1.28+dfsg-10 [59.7 kB]
+#10 3.636 Get:4 http://deb.debian.org/debian bookworm/main amd64 libldap-2.5-0 amd64 2.5.13+dfsg-5 [183 kB]
+#10 3.651 Get:5 http://deb.debian.org/debian bookworm/main amd64 libnghttp2-14 amd64 1.52.0-1+deb12u3 [72.4 kB]
+#10 3.656 Get:6 http://deb.debian.org/debian bookworm/main amd64 libpsl5 amd64 0.21.2-1 [58.7 kB]
+#10 3.666 Get:7 http://deb.debian.org/debian bookworm/main amd64 librtmp1 amd64 2.4+20151223.gitfa8646d.1-2+b2 [60.8 kB]
+#10 3.674 Get:8 http://deb.debian.org/debian-security bookworm-security/main amd64 libssh2-1 amd64 1.10.0-3+deb12u1 [176 kB]
+#10 3.696 Get:9 http://deb.debian.org/debian bookworm/main amd64 libcurl4 amd64 7.88.1-10+deb12u15 [392 kB]
+#10 3.736 Get:10 http://deb.debian.org/debian bookworm/main amd64 curl amd64 7.88.1-10+deb12u15 [316 kB]
+#10 3.935 debconf: delaying package configuration, since apt-utils is not installed
+#10 3.974 Fetched 1614 kB in 0s (5742 kB/s)
+#10 4.039 Selecting previously unselected package libbrotli1:amd64.
+#10 4.039 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 6694 files and directories currently installed.)
+#10 4.053 Preparing to unpack .../0-libbrotli1_1.0.9-2+b6_amd64.deb ...
+#10 4.057 Unpacking libbrotli1:amd64 (1.0.9-2+b6) ...
+#10 4.140 Selecting previously unselected package libsasl2-modules-db:amd64.
+#10 4.141 Preparing to unpack .../1-libsasl2-modules-db_2.1.28+dfsg-10_amd64.deb ...
+#10 4.142 Unpacking libsasl2-modules-db:amd64 (2.1.28+dfsg-10) ...
+#10 4.213 Selecting previously unselected package libsasl2-2:amd64.
+#10 4.214 Preparing to unpack .../2-libsasl2-2_2.1.28+dfsg-10_amd64.deb ...
+#10 4.215 Unpacking libsasl2-2:amd64 (2.1.28+dfsg-10) ...
+#10 4.290 Selecting previously unselected package libldap-2.5-0:amd64.
+#10 4.291 Preparing to unpack .../3-libldap-2.5-0_2.5.13+dfsg-5_amd64.deb ...
+#10 4.292 Unpacking libldap-2.5-0:amd64 (2.5.13+dfsg-5) ...
+#10 4.374 Selecting previously unselected package libnghttp2-14:amd64.
+#10 4.375 Preparing to unpack .../4-libnghttp2-14_1.52.0-1+deb12u3_amd64.deb ...
+#10 4.376 Unpacking libnghttp2-14:amd64 (1.52.0-1+deb12u3) ...
+#10 4.451 Selecting previously unselected package libpsl5:amd64.
+#10 4.452 Preparing to unpack .../5-libpsl5_0.21.2-1_amd64.deb ...
+#10 4.453 Unpacking libpsl5:amd64 (0.21.2-1) ...
+#10 4.527 Selecting previously unselected package librtmp1:amd64.
+#10 4.527 Preparing to unpack .../6-librtmp1_2.4+20151223.gitfa8646d.1-2+b2_amd64.deb ...
+#10 4.528 Unpacking librtmp1:amd64 (2.4+20151223.gitfa8646d.1-2+b2) ...
+#10 4.604 Selecting previously unselected package libssh2-1:amd64.
+#10 4.605 Preparing to unpack .../7-libssh2-1_1.10.0-3+deb12u1_amd64.deb ...
+#10 4.606 Unpacking libssh2-1:amd64 (1.10.0-3+deb12u1) ...
+#10 4.684 Selecting previously unselected package libcurl4:amd64.
+#10 4.684 Preparing to unpack .../8-libcurl4_7.88.1-10+deb12u15_amd64.deb ...
+#10 4.687 Unpacking libcurl4:amd64 (7.88.1-10+deb12u15) ...
+#10 4.768 Selecting previously unselected package curl.
+#10 4.769 Preparing to unpack .../9-curl_7.88.1-10+deb12u15_amd64.deb ...
+#10 4.770 Unpacking curl (7.88.1-10+deb12u15) ...
+#10 4.837 Setting up libpsl5:amd64 (0.21.2-1) ...
+#10 4.845 Setting up libbrotli1:amd64 (1.0.9-2+b6) ...
+#10 4.848 Setting up libnghttp2-14:amd64 (1.52.0-1+deb12u3) ...
+#10 4.857 Setting up libsasl2-modules-db:amd64 (2.1.28+dfsg-10) ...
+#10 4.859 Setting up librtmp1:amd64 (2.4+20151223.gitfa8646d.1-2+b2) ...
+#10 4.865 Setting up libsasl2-2:amd64 (2.1.28+dfsg-10) ...
+#10 4.867 Setting up libssh2-1:amd64 (1.10.0-3+deb12u1) ...
+#10 4.872 Setting up libldap-2.5-0:amd64 (2.5.13+dfsg-5) ...
+#10 4.876 Setting up libcurl4:amd64 (7.88.1-10+deb12u15) ...
+#10 4.879 Setting up curl (7.88.1-10+deb12u15) ...
+#10 4.883 Processing triggers for libc-bin (2.36-9+deb12u13) ...
+#10 DONE 5.0s
+
+#11 [runtime 3/9] RUN mkdir -p /data && chown appuser:appuser /data
+#11 DONE 0.1s
+
+#9 [builder 4/4] RUN pip install --prefix=/install -r requirements.txt
+#9 5.240 Collecting pydantic-core==2.46.4 (from pydantic==2.13.4->-r requirements.txt (line 13))
+#9 5.269   Downloading pydantic_core-2.46.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
+#9 5.311 Collecting python-dotenv>=0.21.0 (from pydantic-settings==2.14.2->-r requirements.txt (line 14))
+#9 5.333   Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+#9 5.361 Collecting dnspython>=2.0.0 (from email-validator==2.3.0->-r requirements.txt (line 15))
+#9 5.383   Downloading dnspython-2.9.0-py3-none-any.whl.metadata (5.7 kB)
+#9 5.412 Collecting idna>=2.0.0 (from email-validator==2.3.0->-r requirements.txt (line 15))
+#9 5.434   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+#9 5.571 Collecting greenlet>=1 (from sqlalchemy==2.0.51->-r requirements.txt (line 19))
+#9 5.598   Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+#9 5.637 Collecting Mako (from alembic==1.18.5->-r requirements.txt (line 20))
+#9 5.661   Downloading mako-1.4.3-py3-none-any.whl.metadata (2.9 kB)
+#9 6.081 Collecting botocore<1.44.0,>=1.43.57 (from boto3==1.43.57->-r requirements.txt (line 24))
+#9 6.110   Downloading botocore-1.43.114-py3-none-any.whl.metadata (5.6 kB)
+#9 6.133 Collecting jmespath<2.0.0,>=0.7.1 (from boto3==1.43.57->-r requirements.txt (line 24))
+#9 6.162   Downloading jmespath-1.1.0-py3-none-any.whl.metadata (7.6 kB)
+#9 6.191 Collecting s3transfer<0.20.0,>=0.19.0 (from boto3==1.43.57->-r requirements.txt (line 24))
+#9 6.211   Downloading s3transfer-0.19.2-py3-none-any.whl.metadata (1.7 kB)
+#9 6.253 Collecting limits>=2.3 (from slowapi==0.1.10->-r requirements.txt (line 35))
+#9 6.276   Downloading limits-5.8.0-py3-none-any.whl.metadata (10 kB)
+#9 6.312 Collecting anyio (from httpx==0.28.1->-r requirements.txt (line 44))
+#9 6.343   Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+#9 6.376 Collecting certifi (from httpx==0.28.1->-r requirements.txt (line 44))
+#9 6.400   Downloading certifi-2026.10.18-py3-none-any.whl.metadata (2.5 kB)
+#9 6.432 Collecting httpcore==1.* (from httpx==0.28.1->-r requirements.txt (line 44))
+#9 6.453   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+#9 6.489 Collecting httpcore2==2.9.1 (from httpx2==2.9.1->-r requirements.txt (line 45))
+#9 6.516   Downloading httpcore2-2.9.1-py3-none-any.whl.metadata (24 kB)
+#9 6.553 Collecting truststore>=0.10 (from httpx2==2.9.1->-r requirements.txt (line 45))
+#9 6.576   Downloading truststore-0.10.5-py3-none-any.whl.metadata (4.5 kB)
+#9 6.706 Collecting charset_normalizer<4,>=2 (from requests==2.34.2->-r requirements.txt (line 46))
+#9 6.727   Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (46 kB)
+#9 6.771 Collecting urllib3<3,>=1.26 (from requests==2.34.2->-r requirements.txt (line 46))
+#9 6.792   Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+#9 6.823 Collecting iniconfig>=1.0.1 (from pytest==9.1.1->-r requirements.txt (line 48))
+#9 6.844   Downloading iniconfig-2.3.1-py3-none-any.whl.metadata (2.8 kB)
+#9 6.871 Collecting pluggy<2,>=1.5 (from pytest==9.1.1->-r requirements.txt (line 48))
+#9 6.894   Downloading pluggy-1.7.0-py3-none-any.whl.metadata (5.0 kB)
+#9 6.924 Collecting pygments>=2.7.2 (from pytest==9.1.1->-r requirements.txt (line 48))
+#9 6.945   Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+#9 7.298 Collecting coverage>=7.10.6 (from coverage[toml]>=7.10.6->pytest-cov==7.1.0->-r requirements.txt (line 49))
+#9 7.325   Downloading coverage-7.16.2-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (8.2 kB)
+#9 7.362 Collecting CacheControl>=0.13.0 (from CacheControl[filecache]>=0.13.0->pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 7.385   Downloading cachecontrol-0.14.4-py3-none-any.whl.metadata (3.1 kB)
+#9 7.433 Collecting cyclonedx-python-lib<10,>=5 (from pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 7.460   Downloading cyclonedx_python_lib-9.1.0-py3-none-any.whl.metadata (6.5 kB)
+#9 7.490 Collecting pip-api>=0.0.28 (from pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 7.512   Downloading pip_api-0.0.35-py3-none-any.whl.metadata (17 kB)
+#9 7.551 Collecting pip-requirements-parser>=32.0.0 (from pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 7.574   Downloading pip_requirements_parser-32.0.1-py3-none-any.whl.metadata (9.3 kB)
+#9 7.644 Collecting rich>=12.4 (from pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 7.666   Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+#9 7.703 Collecting toml>=0.10 (from pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 7.726   Downloading toml-0.10.2-py2.py3-none-any.whl.metadata (7.1 kB)
+#9 7.764 Collecting platformdirs>=4.2.0 (from pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 7.785   Downloading platformdirs-4.13.4-py3-none-any.whl.metadata (5.5 kB)
+#9 7.958 Collecting cryptography>=3.4.0 (from pyjwt[crypto]==2.13.0->-r requirements.txt (line 34))
+#9 7.982   Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.4 kB)
+#9 8.026 Collecting httptools>=0.8.0 (from uvicorn[standard]==0.51.0->-r requirements.txt (line 11))
+#9 8.050   Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.5 kB)
+#9 8.099 Collecting pyyaml>=5.1 (from uvicorn[standard]==0.51.0->-r requirements.txt (line 11))
+#9 8.167   Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+#9 8.267 Collecting uvloop>=0.15.1 (from uvicorn[standard]==0.51.0->-r requirements.txt (line 11))
+#9 8.293   Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.1 kB)
+#9 8.376 Collecting watchfiles>=0.20 (from uvicorn[standard]==0.51.0->-r requirements.txt (line 11))
+#9 8.397   Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
+#9 8.533 Collecting websockets>=13.0 (from uvicorn[standard]==0.51.0->-r requirements.txt (line 11))
+#9 8.556   Downloading websockets-17.2-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.3 kB)
+#9 8.595 Collecting python-dateutil<3.0.0,>=2.1 (from botocore<1.44.0,>=1.43.57->boto3==1.43.57->-r requirements.txt (line 24))
+#9 8.618   Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+#9 8.714 Collecting msgpack<2.0.0,>=0.5.2 (from CacheControl>=0.13.0->CacheControl[filecache]>=0.13.0->pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 8.739   Downloading msgpack-1.2.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.3 kB)
+#9 8.788 Collecting filelock>=3.8.0 (from CacheControl[filecache]>=0.13.0->pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 8.807   Downloading filelock-4.2.2-py3-none-any.whl.metadata (2.0 kB)
+#9 8.911 Collecting cffi>=2.0.0 (from cryptography>=3.4.0->pyjwt[crypto]==2.13.0->-r requirements.txt (line 34))
+#9 8.932   Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+#9 8.964 Collecting license-expression<31,>=30 (from cyclonedx-python-lib<10,>=5->pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 8.989   Downloading license_expression-30.4.4-py3-none-any.whl.metadata (11 kB)
+#9 9.033 Collecting packageurl-python<2,>=0.11 (from cyclonedx-python-lib<10,>=5->pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 9.057   Downloading packageurl_python-0.17.6-py3-none-any.whl.metadata (5.1 kB)
+#9 9.091 Collecting py-serializable<3.0.0,>=2.0.0 (from cyclonedx-python-lib<10,>=5->pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 9.114   Downloading py_serializable-2.1.0-py3-none-any.whl.metadata (4.3 kB)
+#9 9.143 Collecting sortedcontainers<3.0.0,>=2.4.0 (from cyclonedx-python-lib<10,>=5->pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 9.167   Downloading sortedcontainers-2.4.0-py2.py3-none-any.whl.metadata (10 kB)
+#9 9.208 Collecting deprecated>=1.2 (from limits>=2.3->slowapi==0.1.10->-r requirements.txt (line 35))
+#9 9.230   Downloading deprecated-3.0.0-py3-none-any.whl.metadata (6.5 kB)
+#9 9.240 Requirement already satisfied: pip in /usr/local/lib/python3.12/site-packages (from pip-api>=0.0.28->pip-audit==2.9.0->-r requirements.txt (line 52)) (25.0.1)
+#9 9.277 Collecting pyparsing (from pip-requirements-parser>=32.0.0->pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 9.297   Downloading pyparsing-3.3.3-py3-none-any.whl.metadata (5.9 kB)
+#9 9.333 Collecting markdown-it-py>=2.2.0 (from rich>=12.4->pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 9.356   Downloading markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+#9 9.639 Collecting MarkupSafe>=2.0 (from Mako->alembic==1.18.5->-r requirements.txt (line 20))
+#9 9.661   Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+#9 9.686 Collecting pycparser (from cffi>=2.0.0->cryptography>=3.4.0->pyjwt[crypto]==2.13.0->-r requirements.txt (line 34))
+#9 9.708   Downloading pycparser-3.11-py3-none-any.whl.metadata (8.2 kB)
+#9 10.01 Collecting wrapt<3,>=1.16 (from deprecated>=1.2->limits>=2.3->slowapi==0.1.10->-r requirements.txt (line 35))
+#9 10.03   Downloading wrapt-2.5.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (7.6 kB)
+#9 10.07 Collecting boolean.py>=4.0 (from license-expression<31,>=30->cyclonedx-python-lib<10,>=5->pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 10.09   Downloading boolean_py-5.0-py3-none-any.whl.metadata (2.3 kB)
+#9 10.11 Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=12.4->pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 10.14   Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+#9 10.17 Collecting defusedxml<0.8.0,>=0.7.1 (from py-serializable<3.0.0,>=2.0.0->cyclonedx-python-lib<10,>=5->pip-audit==2.9.0->-r requirements.txt (line 52))
+#9 10.19   Downloading defusedxml-0.7.1-py2.py3-none-any.whl.metadata (32 kB)
+#9 10.23 Collecting six>=1.5 (from python-dateutil<3.0.0,>=2.1->botocore<1.44.0,>=1.43.57->boto3==1.43.57->-r requirements.txt (line 24))
+#9 10.25   Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+#9 10.30 Downloading fastapi-0.140.10-py3-none-any.whl (131 kB)
+#9 10.33 Downloading uvicorn-0.51.0-py3-none-any.whl (73 kB)
+#9 10.36 Downloading gunicorn-26.0.0-py3-none-any.whl (212 kB)
+#9 10.40 Downloading pydantic-2.13.4-py3-none-any.whl (472 kB)
+#9 10.47 Downloading pydantic_settings-2.14.2-py3-none-any.whl (61 kB)
+#9 10.49 Downloading email_validator-2.3.0-py3-none-any.whl (35 kB)
+#9 10.52 Downloading python_multipart-0.0.32-py3-none-any.whl (30 kB)
+#9 10.55 Downloading sqlalchemy-2.0.51-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (3.4 MB)
+#9 10.84    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 11.8 MB/s eta 0:00:00
+#9 10.87 Downloading alembic-1.18.5-py3-none-any.whl (264 kB)
+#9 10.92 Downloading psycopg2_binary-2.9.12-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.3 MB)
+#9 11.30    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.3/4.3 MB 11.3 MB/s eta 0:00:00
+#9 11.32 Downloading boto3-1.43.57-py3-none-any.whl (140 kB)
+#9 11.36 Downloading pika-1.4.2-py3-none-any.whl (165 kB)
+#9 11.40 Downloading bcrypt-5.0.0-cp39-abi3-manylinux_2_34_x86_64.whl (278 kB)
+#9 11.46 Downloading pyjwt-2.13.0-py3-none-any.whl (31 kB)
+#9 11.48 Downloading slowapi-0.1.10-py3-none-any.whl (14 kB)
+#9 11.51 Downloading pillow-12.3.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.9 MB)
+#9 12.53    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.9/6.9 MB 6.9 MB/s eta 0:00:00
+#9 12.55 Downloading prometheus_client-0.26.0-py3-none-any.whl (64 kB)
+#9 12.58 Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+#9 12.61 Downloading httpx2-2.9.1-py3-none-any.whl (91 kB)
+#9 12.65 Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+#9 12.67 Downloading tenacity-9.1.4-py3-none-any.whl (28 kB)
+#9 12.70 Downloading pytest-9.1.1-py3-none-any.whl (386 kB)
+#9 12.76 Downloading pytest_cov-7.1.0-py3-none-any.whl (22 kB)
+#9 12.78 Downloading pip_audit-2.9.0-py3-none-any.whl (58 kB)
+#9 12.82 Downloading ruff-0.15.6-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (11.3 MB)
+#9 14.19    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.3/11.3 MB 8.2 MB/s eta 0:00:00
+#9 14.22 Downloading setuptools-83.0.0-py3-none-any.whl (1.0 MB)
+#9 14.32    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.0/1.0 MB 10.5 MB/s eta 0:00:00
+#9 14.35 Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+#9 14.38 Downloading httpcore2-2.9.1-py3-none-any.whl (82 kB)
+#9 14.42 Downloading pydantic_core-2.46.4-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+#9 14.65    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 8.7 MB/s eta 0:00:00
+#9 14.68 Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+#9 14.71 Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+#9 14.74 Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+#9 14.78 Downloading botocore-1.43.114-py3-none-any.whl (16.1 MB)
+#9 16.73    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.1/16.1 MB 8.2 MB/s eta 0:00:00
+#9 16.75 Downloading cachecontrol-0.14.4-py3-none-any.whl (22 kB)
+#9 16.78 Downloading certifi-2026.10.18-py3-none-any.whl (134 kB)
+#9 16.82 Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (257 kB)
+#9 16.86 Downloading click-8.5.0-py3-none-any.whl (125 kB)
+#9 16.89 Downloading coverage-7.16.2-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (258 kB)
+#9 16.95 Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+#9 17.46    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 9.3 MB/s eta 0:00:00
+#9 17.49 Downloading cyclonedx_python_lib-9.1.0-py3-none-any.whl (374 kB)
+#9 17.55 Downloading dnspython-2.9.0-py3-none-any.whl (354 kB)
+#9 17.61 Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (621 kB)
+#9 17.67    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 621.4/621.4 kB 10.3 MB/s eta 0:00:00
+#9 17.70 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#9 17.72 Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (552 kB)
+#9 17.78    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 552.8/552.8 kB 10.4 MB/s eta 0:00:00
+#9 17.81 Downloading idna-3.20-py3-none-any.whl (69 kB)
+#9 17.83 Downloading iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+#9 17.86 Downloading jmespath-1.1.0-py3-none-any.whl (20 kB)
+#9 17.89 Downloading limits-5.8.0-py3-none-any.whl (60 kB)
+#9 17.91 Downloading packaging-26.3-py3-none-any.whl (129 kB)
+#9 17.94 Downloading pip_api-0.0.35-py3-none-any.whl (123 kB)
+#9 17.98 Downloading pip_requirements_parser-32.0.1-py3-none-any.whl (35 kB)
+#9 18.00 Downloading platformdirs-4.13.4-py3-none-any.whl (32 kB)
+#9 18.02 Downloading pluggy-1.7.0-py3-none-any.whl (27 kB)
+#9 18.05 Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+#9 18.16    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 11.0 MB/s eta 0:00:00
+#9 18.19 Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+#9 18.22 Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+#9 18.29    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 10.8 MB/s eta 0:00:00
+#9 18.32 Downloading rich-15.0.0-py3-none-any.whl (310 kB)
+#9 18.37 Downloading s3transfer-0.19.2-py3-none-any.whl (90 kB)
+#9 18.40 Downloading starlette-1.9.0-py3-none-any.whl (80 kB)
+#9 18.43 Downloading toml-0.10.2-py2.py3-none-any.whl (16 kB)
+#9 18.45 Downloading truststore-0.10.5-py3-none-any.whl (19 kB)
+#9 18.49 Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#9 18.51 Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+#9 18.54 Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+#9 18.57 Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.5 MB)
+#9 19.00    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 10.5 MB/s eta 0:00:00
+#9 19.03 Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (458 kB)
+#9 19.11 Downloading websockets-17.2-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (225 kB)
+#9 19.15 Downloading mako-1.4.3-py3-none-any.whl (80 kB)
+#9 19.18 Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+#9 19.23 Downloading deprecated-3.0.0-py3-none-any.whl (21 kB)
+#9 19.26 Downloading filelock-4.2.2-py3-none-any.whl (162 kB)
+#9 19.30 Downloading license_expression-30.4.4-py3-none-any.whl (120 kB)
+#9 19.34 Downloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+#9 19.37 Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+#9 19.40 Downloading msgpack-1.2.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (472 kB)
+#9 19.47 Downloading packageurl_python-0.17.6-py3-none-any.whl (36 kB)
+#9 19.51 Downloading py_serializable-2.1.0-py3-none-any.whl (23 kB)
+#9 19.53 Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+#9 19.58 Downloading sortedcontainers-2.4.0-py2.py3-none-any.whl (29 kB)
+#9 19.61 Downloading pyparsing-3.3.3-py3-none-any.whl (126 kB)
+#9 19.64 Downloading boolean_py-5.0-py3-none-any.whl (26 kB)
+#9 19.67 Downloading defusedxml-0.7.1-py2.py3-none-any.whl (25 kB)
+#9 19.69 Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+#9 19.73 Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+#9 19.75 Downloading wrapt-2.5.1-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (250 kB)
+#9 19.80 Downloading pycparser-3.11-py3-none-any.whl (51 kB)
+#9 20.06 Installing collected packages: sortedcontainers, boolean.py, wrapt, websockets, uvloop, urllib3, typing-extensions, truststore, toml, tenacity, six, setuptools, ruff, pyyaml, python-multipart, python-dotenv, pyparsing, pyjwt, pygments, pycparser, psycopg2-binary, prometheus-client, pluggy, platformdirs, pip-api, pillow, pika, packaging, packageurl-python, msgpack, mdurl, MarkupSafe, license-expression, jmespath, iniconfig, idna, httptools, h11, greenlet, filelock, dnspython, defusedxml, coverage, click, charset_normalizer, certifi, bcrypt, annotated-types, annotated-doc, uvicorn, typing-inspection, sqlalchemy, requests, python-dateutil, pytest, pydantic-core, py-serializable, pip-requirements-parser, markdown-it-py, Mako, httpcore2, httpcore, gunicorn, email-validator, deprecated, cffi, anyio, watchfiles, starlette, rich, pytest-cov, pydantic, limits, httpx2, httpx, cyclonedx-python-lib, cryptography, CacheControl, botocore, alembic, slowapi, s3transfer, pydantic-settings, fastapi, pip-audit, boto3
+#9 24.68 Successfully installed CacheControl-0.14.4 Mako-1.4.3 MarkupSafe-3.0.4 alembic-1.18.5 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 bcrypt-5.0.0 boolean.py-5.0 boto3-1.43.57 botocore-1.43.114 certifi-2026.10.18 cffi-2.1.1 charset_normalizer-3.5.2 click-8.5.0 coverage-7.16.2 cryptography-50.0.2 cyclonedx-python-lib-9.1.0 defusedxml-0.7.1 deprecated-3.0.0 dnspython-2.9.0 email-validator-2.3.0 fastapi-0.140.10 filelock-4.2.2 greenlet-3.5.6 gunicorn-26.0.0 h11-0.16.0 httpcore-1.0.9 httpcore2-2.9.1 httptools-0.9.0 httpx-0.28.1 httpx2-2.9.1 idna-3.20 iniconfig-2.3.1 jmespath-1.1.0 license-expression-30.4.4 limits-5.8.0 markdown-it-py-4.2.0 mdurl-0.1.2 msgpack-1.2.3 packageurl-python-0.17.6 packaging-26.3 pika-1.4.2 pillow-12.3.0 pip-api-0.0.35 pip-audit-2.9.0 pip-requirements-parser-32.0.1 platformdirs-4.13.4 pluggy-1.7.0 prometheus-client-0.26.0 psycopg2-binary-2.9.12 py-serializable-2.1.0 pycparser-3.11 pydantic-2.13.4 pydantic-core-2.46.4 pydantic-settings-2.14.2 pygments-2.21.0 pyjwt-2.13.0 pyparsing-3.3.3 pytest-9.1.1 pytest-cov-7.1.0 python-dateutil-2.9.0.post0 python-dotenv-1.2.4 python-multipart-0.0.32 pyyaml-6.0.3 requests-2.34.2 rich-15.0.0 ruff-0.15.6 s3transfer-0.19.2 setuptools-83.0.0 six-1.17.0 slowapi-0.1.10 sortedcontainers-2.4.0 sqlalchemy-2.0.51 starlette-1.9.0 tenacity-9.1.4 toml-0.10.2 truststore-0.10.5 typing-extensions-4.16.0 typing-inspection-0.4.4 urllib3-2.8.0 uvicorn-0.51.0 uvloop-0.23.0 watchfiles-1.3.0 websockets-17.2 wrapt-2.5.1
+#9 24.68 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#9 DONE 24.9s
+
+#12 [runtime 4/9] COPY --from=builder /install /usr/local
+#12 DONE 0.5s
+
+#13 [runtime 5/9] WORKDIR /app
+#13 DONE 0.0s
+
+#14 [runtime 6/9] COPY --chown=appuser:appuser app/       ./app/
+#14 DONE 0.0s
+
+#15 [runtime 7/9] COPY --chown=appuser:appuser functions/ ./functions/
+#15 DONE 0.0s
+
+#16 [runtime 8/9] COPY --chown=appuser:appuser tests/     ./tests/
+#16 DONE 0.0s
+
+#17 [runtime 9/9] COPY --chown=appuser:appuser scripts/   ./scripts/
+#17 DONE 0.0s
+
+#18 exporting to image
+#18 exporting layers
+#18 exporting layers 0.5s done
+#18 writing image sha256:89a8e53c0c20f2d9852db5a2302633303f0e4e7a8a6f7af2f6c00c4f447b1e2c done
+#18 naming to docker.io/marshaun06/job-tracker:e4686d7 done
+#18 DONE 0.5s

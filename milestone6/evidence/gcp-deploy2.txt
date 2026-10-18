@@ -1,0 +1,9 @@
+Deploying container to Cloud Run service [[1mitc531-job-tracker[m] in project [[1mitc531-module7[m] region [[1mus-central1[m]
+Deploying...
+Setting IAM Policy..........done
+Creating Revision........................................................................................................................done
+Routing traffic.....done
+Done.
+Service [[1mitc531-job-tracker[m] revision [[1mitc531-job-tracker-00002-vdj[m] has been deployed and is serving [1m100[m percent of traffic.
+Service URL: [1mhttps://itc531-job-tracker-284041991449.us-central1.run.app[m
+https://itc531-job-tracker-k7misaiyja-uc.a.run.app

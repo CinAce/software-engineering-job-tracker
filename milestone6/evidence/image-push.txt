@@ -1,0 +1,33 @@
+The push refers to repository [docker.io/marshaun06/job-tracker]
+e72151054a77: Preparing
+9249e884ada3: Preparing
+5d15b033f4d9: Preparing
+13cb256e177a: Preparing
+88bf67c8cd38: Preparing
+0841d356e474: Preparing
+9e9f8dd019df: Preparing
+54b0f11dd9c4: Preparing
+6bcbbe0b3546: Preparing
+4858806d5914: Preparing
+9cec99e910cb: Preparing
+aca836066730: Preparing
+0841d356e474: Waiting
+9e9f8dd019df: Waiting
+54b0f11dd9c4: Waiting
+6bcbbe0b3546: Waiting
+4858806d5914: Waiting
+9cec99e910cb: Waiting
+aca836066730: Waiting
+88bf67c8cd38: Pushed
+13cb256e177a: Pushed
+9249e884ada3: Pushed
+e72151054a77: Pushed
+5d15b033f4d9: Pushed
+4858806d5914: Mounted from marshaun06/mypipeline
+6bcbbe0b3546: Mounted from marshaun06/mypipeline
+9cec99e910cb: Mounted from marshaun06/mypipeline
+aca836066730: Mounted from marshaun06/mypipeline
+9e9f8dd019df: Pushed
+54b0f11dd9c4: Pushed
+0841d356e474: Pushed
+e4686d7: digest: sha256:7c625b8aef14920cb73cd5ff9af0f77bc3dec274475e2d8722e899ff76535a07 size: 2827

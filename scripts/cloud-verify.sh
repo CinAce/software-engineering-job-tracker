@@ -1,74 +1,76 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# ITC 531 — capability contract check (C1-C6).
+#
+#   bash scripts/cloud-verify.sh <yourprovider>
+#
+# Reads only. Creates nothing. This is the Module 6 gate: you may not create a
+# single cloud resource in this course until this passes and you have submitted
+# its output.
+set -uo pipefail
 
-PROVIDER="${1:-}"
+# Runs from anywhere: resolve everything relative to this script, not to your
+# current directory, so it resolves to this module's root wherever you unzipped it.
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 
-if [[ "$PROVIDER" != "aws" ]]; then
-  echo "Usage: bash scripts/cloud-verify.sh aws" >&2
-  exit 1
+
+ADAPTER="${1:-}"
+if [[ -z "${ADAPTER}" || "${ADAPTER}" == "local" ]]; then
+  cat >&2 <<'MSG'
+Usage: bash scripts/cloud-verify.sh <yourprovider>
+
+There is no default provider in this course, and 'local' is not a cloud target.
+Write adapters/<yourprovider>.sh from adapters/TEMPLATE.sh first (module 6).
+MSG
+  exit 2
 fi
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-EVIDENCE="$ROOT/members/adams5ma/evidence"
+SH="adapters/${ADAPTER}.sh"
+ENVF="adapters/${ADAPTER}.env"
+[[ -f "${SH}"   ]] || { echo "missing ${SH} — copy adapters/TEMPLATE.sh and implement it" >&2; exit 2; }
+[[ -f "${ENVF}" ]] || { echo "missing ${ENVF} — copy adapters/TEMPLATE.env and fill it in" >&2; exit 2; }
 
-if [[ -f "$ROOT/adapters/aws.env" ]]; then
-  set -a
-  source "$ROOT/adapters/aws.env"
-  set +a
-fi
+set -a; source "${ENVF}"; set +a
+source "${SH}"
 
-source "$ROOT/adapters/aws.sh"
-
-echo "======================================"
-echo "ITC531 Cloud Capability Verification"
-echo "======================================"
-
+echo "================================================================"
+echo "ITC 531 capability contract check"
+echo "adapter : ${ADAPTER}"
+echo "date    : $(date -u '+%Y-%m-%d %H:%M UTC')"
+echo "================================================================"
 adapter_meta
-echo
+echo "----------------------------------------------------------------"
 
-if ! adapter_verify; then
-  echo "CONTRACT NOT SATISFIED"
-  exit 1
+if adapter_verify; then
+  RESULT=0
+else
+  RESULT=1
 fi
 
-echo
-echo "Checking C3 supporting evidence..."
-
-for file in \
-  "$EVIDENCE/06-aws-iam-permissions.png" \
-  "$EVIDENCE/06-aws-iam-policy.png"; do
-  if [[ ! -s "$file" ]]; then
-    echo "C3 FAIL: missing $file"
-    exit 1
-  fi
-done
-
-echo "C3: IAM screenshots present"
-echo "C3: Policy scope must match the reviewed read-only policies"
-
-echo
-echo "Checking C6 supporting evidence..."
-
-COST="$EVIDENCE/06-aws-cost-evidence.txt"
-
-if [[ ! -s "$COST" ]]; then
-  echo "C6 FAIL: cost evidence missing"
-  exit 1
+echo "----------------------------------------------------------------"
+# Local-side checks the adapter cannot fudge.
+if [[ "${IMAGE_REF:-}" == *:latest ]]; then
+  echo "LOCAL FAIL: IMAGE_REF ends in ':latest'. Deploy a specific digest or git SHA."
+  RESULT=1
+fi
+if [[ "${JWT_SECRET:-}" == *local-development-secret* ]]; then
+  echo "LOCAL FAIL: JWT_SECRET is still the local development value."
+  RESULT=1
+fi
+if [[ -z "${SPEND_ALERT_THRESHOLD:-}" ]]; then
+  echo "LOCAL FAIL: SPEND_ALERT_THRESHOLD is unset. C5 requires a configured alert."
+  RESULT=1
+fi
+if [[ -d .git ]] && ! git check-ignore -q "${ENVF}"; then
+  echo "LOCAL FAIL: ${ENVF} is not gitignored."
+  RESULT=1
 fi
 
-if ! grep -q 'Estimated subtotal:' "$COST"; then
-  echo "C6 FAIL: cost estimate missing"
-  exit 1
+echo "================================================================"
+if (( RESULT == 0 )); then
+  echo "CONTRACT SATISFIED. You may now create resources. Submit this output."
+else
+  echo "CONTRACT NOT SATISFIED. Do not create anything yet."
+  echo "If your provider genuinely cannot meet a clause, that is a finding, not a"
+  echo "failure — write it up and talk to the instructor about Route B."
 fi
-
-echo "C6: Cost estimate present"
-
-echo
-echo "======================================"
-echo "VERIFICATION INCOMPLETE"
-echo "C1: Deployment capability not yet proven"
-echo "C3: IAM policy scope requires review"
-echo "C4: Resource deletion capability not yet proven"
-echo "C6: Full deployment cost estimate incomplete"
-echo "======================================"
-exit 1
+exit "${RESULT}"

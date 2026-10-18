@@ -1,0 +1,18 @@
+ITC 531 cloud audit — adapter=gcp — 2026-10-18 21:55 UTC
+  provider:        Google Cloud (GCP)
+  project:         itc531-module7
+  region:          us-central1
+  compute service: Cloud Run
+  storage service: Cloud Storage XML API (SigV4)
+  auth model:      gcloud user OAuth with project IAM; project-scoped HMAC service account
+  contract check:  2026-10-18
+---------------------------------------------------------------
+hmac-key  GOOG1EWYSBZJQT6JYD66GOMF57VC66DSZJP2UZIRTD2NBTZ73ZVQSXRGIEHHW  ACTIVE
+service-account  itc531-m7-storage@itc531-module7.iam.gserviceaccount.com  PRESENT
+iam-binding  roles/storage.bucketViewer:serviceAccount:itc531-m7-storage@itc531-module7.iam.gserviceaccount.com  PRESENT
+gcs-bucket  gs://itc531-module7-jobtracker-284041991449  PRESENT
+---------------------------------------------------------------
+NOT CLEAN — 4 resource(s) exist.
+
+If you are finished with them:   bash scripts/cloud-down.sh gcp
+If you are mid-assignment that is fine — but check again when you finish.
