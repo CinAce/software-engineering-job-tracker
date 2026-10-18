@@ -1,0 +1,7 @@
+# Layered on top of the repository root compose.yml.
+# Bypass the gateway only for latency tests: it answers /health by itself
+# and does not proxy /tasks, so using port 8000 would compare different handlers.
+services:
+  app:
+    ports:
+      - "127.0.0.1:8013:8000"
