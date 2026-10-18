@@ -1,0 +1,63 @@
+# ITC 531 — the one pinned dependency set for the whole course.
+#
+# Every tutorial uses this file. No tutorial contains a `pip install <package>` line.
+# It is already installed in the course container; `docker compose exec app bash` drops you into it.
+#
+# Verified installable and working together on 2026-07-28 (Python 3.11 and 3.12).
+# Re-verify at the start of each term with `bash scripts/verify-deps.sh`.
+
+# --- web framework -----------------------------------------------------------
+fastapi==0.140.10
+uvicorn[standard]==0.51.0
+gunicorn==26.0.0
+pydantic==2.13.4
+pydantic-settings==2.14.2
+email-validator==2.3.0          # required by pydantic EmailStr; explicit, not implicit
+python-multipart==0.0.32        # >=0.0.18 closes CVE-2024-24762 and CVE-2024-53981
+
+# --- data --------------------------------------------------------------------
+sqlalchemy==2.0.51
+alembic==1.18.5
+psycopg2-binary==2.9.12         # ships aarch64 wheels; Apple Silicon needs no toolchain
+
+# --- object storage (S3 API) -------------------------------------------------
+boto3==1.43.57                  # talks to ANY S3-compatible endpoint via endpoint_url
+
+# --- messaging ---------------------------------------------------------------
+pika==1.4.2                     # AMQP 0-9-1
+
+# --- security ----------------------------------------------------------------
+# NOTE: this course does NOT use passlib. passlib 1.7.4 (last release 2020) cannot
+# drive bcrypt 5.x, and every workaround pins one of the two backwards. The bcrypt
+# package's own API is four lines and has no such problem. See module_6.
+bcrypt==5.0.0
+pyjwt[crypto]==2.13.0           # rejects `alg: none` and algorithm confusion by default
+slowapi==0.1.10
+
+# --- media -------------------------------------------------------------------
+pillow==12.3.0                  # >=10.2.0 closes CVE-2023-50447 (ImageMath.eval RCE)
+
+# --- observability -----------------------------------------------------------
+prometheus-client==0.26.0
+
+# --- http client / testing ---------------------------------------------------
+httpx==0.28.1
+httpx2==2.9.1                   # starlette's TestClient warns without it
+requests==2.34.2                # >=2.32.4 closes CVE-2024-35195
+tenacity==9.1.4
+pytest==9.1.1
+pytest-cov==7.1.0
+
+# --- tooling -----------------------------------------------------------------
+pip-audit==2.9.0                # available; not a graded step
+ruff==0.15.6
+
+# --- build toolchain ---------------------------------------------------------
+# Nothing here imports setuptools, but the base image ships it and pip-audit
+# audits what is installed, not what is imported. 79.0.1 carries PYSEC-2026-3447
+# (MANIFEST.in exclusions bypassed by NFD/NFC mismatch when building an sdist).
+# The course never builds an sdist, so the vulnerable path is not reachable from
+# this application — which is exactly the judgment module 6 asks you to make. It is
+# pinned forward anyway, because an unreachable finding that stays in the image
+# trains you to skim past the next one that is reachable.
+setuptools==83.0.0

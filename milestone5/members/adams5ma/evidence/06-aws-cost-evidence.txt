@@ -1,0 +1,38 @@
+Provider: AWS
+Region: us-east-2
+Compute: Amazon ECS / AWS Fargate
+Storage: Amazon S3
+
+Example usage: one Linux x86 Fargate task, 0.25 vCPU,
+0.5 GB memory, running for 10 hours; 1 GB S3 Standard
+storage retained for one month.
+
+Fargate CPU:    0.25 x 10 x $0.04048 = $0.1012
+Fargate memory: 0.5 x 10 x $0.004445 = $0.022225
+S3 storage:     1 x $0.023 = $0.023
+
+Estimated subtotal: $0.146425 (about $0.15)
+
+Excludes networking, public IPv4, load balancing, logs,
+container image storage, requests, and data transfer.
+
+AWS pricing references:
+https://aws.amazon.com/fargate/pricing/
+https://aws.amazon.com/s3/pricing/
+
+Monthly AWS budget: $5
+Actual-spend alerts: 85% and 100%
+Forecasted-spend alert: 100%
+
+Term usage assessment:
+This estimate represents 10 total hours of Fargate usage
+and 1 GB-month of S3 storage, not continuous deployment.
+
+The calculated subtotal is $0.146425 for this limited
+usage profile. It does not prove that a complete deployment
+with public networking, load balancing, logs, container
+registry, requests, and data transfer will remain under $5.
+
+Before Module 7 deployment, the team must select a network
+configuration and calculate all additional billable services.
+The AWS budget is an alert, not a hard spending cap.

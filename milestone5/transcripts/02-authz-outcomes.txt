@@ -1,0 +1,8 @@
+=== D2 AUTHORIZATION ===
+Owner creates resource: HTTP 201 (expected 201)
+No token: HTTP 401 (expected 401)
+Non-owner user: HTTP 403 (expected 403)
+Owner: HTTP 200 (expected 200)
+Elevated admin: HTTP 200 (expected 200)
+Non-admin administrative access: HTTP 403 (expected 403)
+Admin administrative access: HTTP 200 (expected 200)

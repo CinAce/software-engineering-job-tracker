@@ -1,0 +1,70 @@
+======================================
+ITC531 Cloud Capability Verification
+======================================
+provider:        aws
+region:          us-east-2
+compute service: Amazon ECS / AWS Fargate
+storage service: Amazon S3
+auth model:      scoped IAM access keys
+contract check:  2026-10-11
+
+Checking AWS authentication...
+C1 compute: checking ECS access...
+C1 compute: PASS (ECS accessible; clusters: [])
+C2 storage: checking signed S3 access...
+[
+    "itc531-myauth-bucket"
+]
+C2 storage: PASS (signed bucket listing succeeded)
+C3 credentials: checking identity...
+C3 identity: arn:aws:iam::327260351196:user/itc531-gate-user
+C3 scope: IAM user identified; review its attached policies in AWS IAM Console
+C3 scope: requires reviewed IAM policy evidence
+C4 enumerate: checking ECS resource listing...
+[]
+C4 enumerate: PASS (ECS cluster enumeration works)
+C5 spend alert: checking budget...
+C5 budget limit: $5.0
+C5 notifications: [
+    {
+        "NotificationType": "ACTUAL",
+        "ComparisonOperator": "GREATER_THAN",
+        "Threshold": 100.0,
+        "NotificationState": "OK"
+    },
+    {
+        "NotificationType": "ACTUAL",
+        "ComparisonOperator": "GREATER_THAN",
+        "Threshold": 85.0,
+        "NotificationState": "OK"
+    },
+    {
+        "NotificationType": "FORECASTED",
+        "ComparisonOperator": "GREATER_THAN",
+        "Threshold": 100.0,
+        "NotificationState": "OK"
+    }
+]
+C5 spend alert: PASS
+C6 cost model:
+Amazon ECS/Fargate charges depend on allocated vCPU, memory, operating time, and region.
+Amazon S3 charges depend on storage, requests, and data transfer.
+Pricing references:
+https://aws.amazon.com/fargate/pricing/
+https://aws.amazon.com/s3/pricing/
+C6: requires a documented term-level cost estimate
+
+Checking C3 supporting evidence...
+C3: IAM screenshots present
+C3: Policy scope must match the reviewed read-only policies
+
+Checking C6 supporting evidence...
+C6: Cost estimate present
+
+======================================
+VERIFICATION INCOMPLETE
+C1: Deployment capability not yet proven
+C3: IAM policy scope requires review
+C4: Resource deletion capability not yet proven
+C6: Full deployment cost estimate incomplete
+======================================
