@@ -1,0 +1,57 @@
+name: jobtracker-observability
+
+services:
+  job-tracker:
+    image: docker.io/marshaun06/job-tracker:e4686d7
+    environment:
+      ENVIRONMENT: local
+      DATABASE_URL: sqlite:////data/monitoring.db
+      S3_ENDPOINT_URL: unused-local-monitoring
+      S3_BUCKET: local-observability-only
+      S3_REGION: auto
+      JWT_SECRET: local-observability-demo-secret-never-use-in-production
+    volumes:
+      - monitoring-db:/data
+    ports:
+      - "127.0.0.1:8012:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=1d
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9091:9090"
+    depends_on:
+      job-tracker:
+        condition: service_healthy
+
+  grafana:
+    image: grafana/grafana:12.1.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: local-demo-only
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      - prometheus
+
+volumes:
+  monitoring-db:
+  prometheus-data:
+  grafana-data:

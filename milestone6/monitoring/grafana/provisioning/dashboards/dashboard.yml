@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: Job Tracker Observability
+    orgId: 1
+    folder: ITC531
+    type: file
+    disableDeletion: false
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/dashboards
