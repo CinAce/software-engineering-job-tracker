@@ -1,0 +1,97 @@
+bash scripts/cloud-audit.sh gcp
+ITC 531 cloud audit — adapter=gcp — 2026-10-19 00:36 UTC
+  provider:        Google Cloud (GCP)
+  project:         project-2e54276d-7e4e-4719-b2b
+  region:          us-central1
+  compute service: Cloud Run
+  storage service: Cloud Storage XML API (SigV4)
+  auth model:      gcloud user OAuth with project IAM; project-scoped HMAC service account
+  contract check:  2026-10-19
+---------------------------------------------------------------
+WARNING: This command is using service account impersonation. All API calls will be executed as [itc531-deployer@project-2e54276d-7e4e-4719-b2b.iam.gserviceaccount.com].
+WARNING: This command is using service account impersonation. All API calls will be executed as [itc531-deployer@project-2e54276d-7e4e-4719-b2b.iam.gserviceaccount.com].
+WARNING: This command is using service account impersonation. All API calls will be executed as [itc531-deployer@project-2e54276d-7e4e-4719-b2b.iam.gserviceaccount.com].
+WARNING: This command is using service account impersonation. All API calls will be executed as [itc531-deployer@project-2e54276d-7e4e-4719-b2b.iam.gserviceaccount.com].
+service-account  itc531-deployer@project-2e54276d-7e4e-4719-b2b.iam.gserviceaccount.com  PRESENT
+WARNING: This command is using service account impersonation. All API calls will be executed as [itc531-deployer@project-2e54276d-7e4e-4719-b2b.iam.gserviceaccount.com].
+iam-binding  roles/iam.serviceAccountUser:serviceAccount:itc531-deployer@project-2e54276d-7e4e-4719-b2b.iam.gserviceaccount.com  PRESENT
+iam-binding  roles/owner:serviceAccount:itc531-deployer@project-2e54276d-7e4e-4719-b2b.iam.gserviceaccount.com  PRESENT
+iam-binding  roles/run.developer:serviceAccount:itc531-deployer@project-2e54276d-7e4e-4719-b2b.iam.gserviceaccount.com  PRESENT
+iam-binding  roles/storage.admin:serviceAccount:itc531-deployer@project-2e54276d-7e4e-4719-b2b.iam.gserviceaccount.com  PRESENT
+WARNING: This command is using service account impersonation. All API calls will be executed as [itc531-deployer@project-2e54276d-7e4e-4719-b2b.iam.gserviceaccount.com].
+---------------------------------------------------------------
+NOT CLEAN — 11 resource(s) exist.
+
+If you are finished with them:   bash scripts/cloud-down.sh gcp
+If you are mid-assignment that is fine — but check again when you finish.
+
+
+bash scripts/cloud-down.sh gcp
+ITC 531 teardown — adapter=gcp — 2026-10-19 00:49 UTC
+  provider:        Google Cloud (GCP)
+  project:         project-2e54276d-7e4e-4719-b2b
+  region:          us-central1
+  compute service: Cloud Run
+  storage service: Cloud Storage XML API (SigV4)
+  auth model:      gcloud user OAuth with project IAM; project-scoped HMAC service account
+  contract check:  2026-10-19
+---------------------------------------------------------------
+About to destroy:
+---------------------------------------------------------------
+Destroy all of the above? [y/N] y
+Module 7 Cloud Run, temporary HMAC key, project IAM binding, and service account removed.
+---------------------------------------------------------------
+Verifying...
+CLEAN. Nothing remains.
+
+Save this output — it is the teardown evidence the final project requires.
+
+
+bash scripts/cloud-audit.sh gcp
+ITC 531 cloud audit — adapter=gcp — 2026-10-19 00:51 UTC
+  provider:        Google Cloud (GCP)
+  project:         project-2e54276d-7e4e-4719-b2b
+  region:          us-central1
+  compute service: Cloud Run
+  storage service: Cloud Storage XML API (SigV4)
+  auth model:      gcloud user OAuth with project IAM; project-scoped HMAC service account
+  contract check:  2026-10-19
+---------------------------------------------------------------
+CLEAN
+
+
+bash scripts/cloud-down.sh gcp
+ITC 531 teardown — adapter=gcp — 2026-10-19 00:49 UTC
+  provider:        Google Cloud (GCP)
+  project:         project-2e54276d-7e4e-4719-b2b
+  region:          us-central1
+  compute service: Cloud Run
+  storage service: Cloud Storage XML API (SigV4)
+  auth model:      gcloud user OAuth with project IAM; project-scoped HMAC service account
+  contract check:  2026-10-19
+---------------------------------------------------------------
+About to destroy:
+---------------------------------------------------------------
+Destroy all of the above? [y/N] y
+Module 7 Cloud Run, temporary HMAC key, project IAM binding, and service account removed.
+---------------------------------------------------------------
+Verifying...
+CLEAN. Nothing remains.
+
+Save this output — it is the teardown evidence the final project requires.
+
+
+bash scripts/cloud-audit.sh gcp
+ITC 531 cloud audit — adapter=gcp — 2026-10-19 00:53 UTC
+  provider:        Google Cloud (GCP)
+  project:         project-2e54276d-7e4e-4719-b2b
+  region:          us-central1
+  compute service: Cloud Run
+  storage service: Cloud Storage XML API (SigV4)
+  auth model:      gcloud user OAuth with project IAM; project-scoped HMAC service account
+  contract check:  2026-10-19
+---------------------------------------------------------------
+CLEAN — no resources exist.
+---------------------------------------------------------------
+
+
