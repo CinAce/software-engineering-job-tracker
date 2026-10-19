@@ -6,12 +6,10 @@ set -euo pipefail
 : "${GCP_PROJECT:?GCP_PROJECT must be set}"
 : "${GCP_REGION:?GCP_REGION must be set}"
 : "${SERVICE_NAME:?SERVICE_NAME must be set}"
-: "${SERVICE_ACCOUNT:?SERVICE_ACCOUNT must be set}"
 : "${IMAGE_REF:?IMAGE_REF must be set}"
 : "${HMAC_CREDENTIAL_FILE:?HMAC_CREDENTIAL_FILE must be set}"
 
-_gcp() { gcloud --project="$GCP_PROJECT" "$@"; }
-
+_gcp() { CLOUDSDK_AUTH_IMPERSONATE_SERVICE_ACCOUNT="" gcloud --project="$GCP_PROJECT" "$@"; }
 adapter_meta() {
   cat <<META
 provider:        Google Cloud (GCP)
