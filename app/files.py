@@ -9,13 +9,15 @@ from fastapi.responses import Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from prometheus_client import Counter
+from app.events.publisher import publish_event
+
 from app import schemas
 from app.auth import current_user
 from app.models import User
 from app.db import get_db
 from app.models import StoredFile
 from app.ports.storage import ObjectStore
-
 
 router = APIRouter(prefix="/files", tags=["files"])
 
@@ -30,6 +32,11 @@ CONTENT_TYPES = {
     ".txt": "text/plain",
 }
 
+UPLOADED_BYTES = Counter(
+    "itc531_uploaded_bytes_total", 
+    "Total bytes uploaded to object storage", 
+    ["content_type"]
+)
 
 def get_store() -> ObjectStore:
     return ObjectStore()
@@ -112,6 +119,18 @@ def upload_file(
         db.commit()
         db.refresh(row)
 
+        UPLOADED_BYTES.labels(content_type=content_type).inc(len(data))
+        
+        publish_event(
+            event_type="resume.uploaded",
+            data={
+                "file_id": row.id,
+                "owner_id": user.id,
+                "filename": original_name,
+                "size_bytes": len(data)
+            }
+        )
+
     except Exception:
         db.rollback()
 
@@ -122,7 +141,7 @@ def upload_file(
 
         raise HTTPException(
             status_code=500,
-            detail="Could not save file metadata",
+            detail="Could not save file metadata or publish event",
         )
 
     return row
@@ -173,7 +192,7 @@ def upload_multiple_files(
             )
 
         row = StoredFile(
-        owner_id=user.id,
+            owner_id=user.id,
             key=item["key"],
             original_name=item["original_name"],
             content_type=item["content_type"],
@@ -415,6 +434,7 @@ def presigned_put(
         "content_type": content_type,
         "expires_in": expires_in,
     }
+
 
 @router.post("/presign/confirm", response_model=schemas.StoredFileOut)
 def confirm_presigned_upload(
