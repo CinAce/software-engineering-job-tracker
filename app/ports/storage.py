@@ -61,8 +61,10 @@ class ObjectStore:
 )
 
         config = Config(
-            signature_version="s3v4",
-            s3={"addressing_style": "path"},
+                signature_version="s3v4",
+                s3={"addressing_style": "path"},
+                request_checksum_calculation="when_required",
+                response_checksum_validation="when_required",
         )
 
         self._client = boto3.client(

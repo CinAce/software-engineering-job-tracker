@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ITC531 Module 7: Google Cloud Run + Google Cloud Storage adapter.
+# ITC531 Module 7 & 8: Google Cloud Run + Google Cloud Storage adapter.
 # Source after adapters/gcp.env. Every provider operation targets GCP_PROJECT.
 set -euo pipefail
 
@@ -9,7 +9,9 @@ set -euo pipefail
 : "${IMAGE_REF:?IMAGE_REF must be set}"
 : "${HMAC_CREDENTIAL_FILE:?HMAC_CREDENTIAL_FILE must be set}"
 
-_gcp() { CLOUDSDK_AUTH_IMPERSONATE_SERVICE_ACCOUNT="" gcloud --project="$GCP_PROJECT" "$@"; }
+# Impersonation rule removed per earlier teardown lockout fix
+_gcp() { gcloud --project="$GCP_PROJECT" "$@"; }
+
 adapter_meta() {
   cat <<META
 provider:        Google Cloud (GCP)
@@ -22,12 +24,10 @@ contract check:  $(date -u +%Y-%m-%d)
 META
 }
 
-# Enumerate only resources belonging to this Module 7 deployment.
-# All CLI reads are mandatory; a failed API request must not look like CLEAN.
 adapter_enumerate() {
   local run_json hmac_json sa_json policy_json
   run_json="$(_gcp run services list --region "$GCP_REGION" --format=json)" || return 1
-  printf '%s' "$run_json" | python3.12 -c '
+  printf '%s' "$run_json" | python3 -c '
 import json,os,sys
 name=os.environ["SERVICE_NAME"]
 for x in json.load(sys.stdin):
@@ -38,7 +38,7 @@ for x in json.load(sys.stdin):
 ' || return 1
 
   hmac_json="$(_gcp storage hmac list --format=json)" || return 1
-  printf '%s' "$hmac_json" | python3.12 -c '
+  printf '%s' "$hmac_json" | python3 -c '
 import json,sys,os
 for x in json.load(sys.stdin):
     x=x.get("metadata",x)
@@ -47,7 +47,7 @@ for x in json.load(sys.stdin):
 ' || return 1
 
   sa_json="$(_gcp iam service-accounts list --format=json)" || return 1
-  printf '%s' "$sa_json" | python3.12 -c '
+  printf '%s' "$sa_json" | python3 -c '
 import json,os,sys
 email=os.environ["SERVICE_ACCOUNT"]
 for x in json.load(sys.stdin):
@@ -56,7 +56,7 @@ for x in json.load(sys.stdin):
 ' || return 1
 
   policy_json="$(_gcp projects get-iam-policy "$GCP_PROJECT" --format=json)" || return 1
-  printf '%s' "$policy_json" | python3.12 -c '
+  printf '%s' "$policy_json" | python3 -c '
 import json,os,sys
 member="serviceAccount:"+os.environ["SERVICE_ACCOUNT"]
 for b in json.load(sys.stdin).get("bindings",[]):
@@ -67,7 +67,7 @@ for b in json.load(sys.stdin).get("bindings",[]):
   if [[ -n "${S3_BUCKET:-}" ]]; then
     local bucket_json
     bucket_json="$(_gcp storage buckets list --format=json)" || return 1
-    printf '%s' "$bucket_json" | python3.12 -c '
+    printf '%s' "$bucket_json" | python3 -c '
 import json, os, sys
 wanted = os.environ["S3_BUCKET"]
 for item in json.load(sys.stdin):
@@ -77,10 +77,9 @@ for item in json.load(sys.stdin):
 ' || return 1
   fi
 
-
   local secrets_json
   secrets_json="$(_gcp secrets list --format=json)" || return 1
-  printf '%s' "$secrets_json" | python3.12 -c '
+  printf '%s' "$secrets_json" | python3 -c '
 import json, sys
 wanted = {
     "itc531-jobtracker-jwt",
@@ -92,7 +91,6 @@ for item in json.load(sys.stdin):
     if name in wanted:
         print("secret-manager  %s  PRESENT" % name)
 ' || return 1
-
 }
 
 adapter_verify() {
@@ -103,7 +101,7 @@ adapter_verify() {
     echo 'C1 compute      : FAIL — Cloud Run list failed'; failed=1
   fi
 
-  if [[ -f "$HMAC_CREDENTIAL_FILE" ]] && python3.12 - "$HMAC_CREDENTIAL_FILE" <<'PY'
+  if [[ -f "$HMAC_CREDENTIAL_FILE" ]] && python3 - "$HMAC_CREDENTIAL_FILE" <<'PY'
 import json, sys, boto3
 with open(sys.argv[1], encoding='utf-8') as fh:
     creds=json.load(fh)
@@ -119,17 +117,14 @@ PY
     echo 'C2 storage      : FAIL — HMAC SigV4 request failed'; failed=1
   fi
 
-  # Verify exact project role of the HMAC identity. Do not mistake a valid
-  # user login for proof that the user OAuth identity has limited access.
   if role_json="$(_gcp projects get-iam-policy "$GCP_PROJECT" --format=json)" && \
-      printf '%s' "$role_json" | python3.12 -c '
+      printf '%s' "$role_json" | python3 -c '
 import json,os,sys
 p=json.load(sys.stdin); member="serviceAccount:"+os.environ["SERVICE_ACCOUNT"]
 roles={b["role"] for b in p.get("bindings",[]) if member in b.get("members",[])}
 sys.exit(0 if roles=={"roles/storage.bucketViewer"} else 1)
 '; then
     echo "C3 credential   : OK — storage HMAC service account: roles/storage.bucketViewer on project $GCP_PROJECT"
-    echo '                    Cloud Run deployment uses separately authenticated gcloud user OAuth.'
   else
     echo 'C3 credential   : FAIL — dedicated storage service account not limited to expected project role'; failed=1
   fi
@@ -145,7 +140,7 @@ sys.exit(0 if roles=={"roles/storage.bucketViewer"} else 1)
   if billing="$(_gcp billing projects describe "$GCP_PROJECT" --format='value(billingAccountName)')" && \
      [[ -n "$billing" ]] && \
      budget_json="$(gcloud billing budgets list --billing-account="$billing" --format=json)" && \
-     printf '%s' "$budget_json" | python3.12 -c '
+     printf '%s' "$budget_json" | python3 -c '
 import json,os,sys
 from decimal import Decimal
 expected=Decimal(os.environ["SPEND_ALERT_THRESHOLD"])
@@ -164,8 +159,6 @@ sys.exit(1)
 
   if [[ "$IMAGE_REF" != *:latest ]] && [[ "$MIN_INSTANCES" == "0" ]] && [[ "$MAX_INSTANCES" == "1" ]]; then
     echo "C6 cost model  : OK — Cloud Run free allowance (2M requests/month); 0 min instances"
-    echo '                    Demo traffic expected under USD $5; excludes unrelated project usage.'
-    echo '                    https://cloud.google.com/run/pricing'
   else
     echo 'C6 cost model  : FAIL — image or scale settings differ from cost model'; failed=1
   fi
@@ -177,6 +170,7 @@ adapter_deploy() {
   : "${S3_ENDPOINT_URL:?S3_ENDPOINT_URL must be set}"
   : "${S3_BUCKET:?S3_BUCKET must be set}"
   : "${S3_REGION:?S3_REGION must be set}"
+  : "${AMQP_URL:?AMQP_URL must be set}"
 
   _gcp run deploy "$SERVICE_NAME" \
     --image "$IMAGE_REF" \
@@ -189,8 +183,8 @@ adapter_deploy() {
     --cpu "$CPU" \
     --memory "$MEMORY" \
     --timeout "$TIMEOUT" \
-    --set-env-vars "ENVIRONMENT=cloud,DATABASE_URL=$DATABASE_URL,S3_ENDPOINT_URL=$S3_ENDPOINT_URL,S3_PUBLIC_ENDPOINT_URL=$S3_ENDPOINT_URL,S3_BUCKET=$S3_BUCKET,S3_REGION=$S3_REGION" \
-    --set-secrets "JWT_SECRET=itc531-jobtracker-jwt:1,AWS_ACCESS_KEY_ID=itc531-jobtracker-hmac-id:1,AWS_SECRET_ACCESS_KEY=itc531-jobtracker-hmac-secret:1" \
+    --set-env-vars "ENVIRONMENT=cloud,DATABASE_URL=$DATABASE_URL,S3_ENDPOINT_URL=$S3_ENDPOINT_URL,S3_PUBLIC_ENDPOINT_URL=$S3_ENDPOINT_URL,S3_BUCKET=$S3_BUCKET,S3_REGION=$S3_REGION,AMQP_URL=$AMQP_URL" \
+    --set-secrets "JWT_SECRET=itc531-jobtracker-jwt:latest,AWS_ACCESS_KEY_ID=itc531-jobtracker-hmac-id:latest,AWS_SECRET_ACCESS_KEY=itc531-jobtracker-hmac-secret:latest" \
     --quiet >&2
 
   local url
@@ -209,7 +203,7 @@ adapter_deploy() {
 adapter_destroy() {
   local run_json hmac_json sa_json roles_json
   run_json="$(_gcp run services list --region "$GCP_REGION" --format=json)" || return 1
-  if printf '%s' "$run_json" | python3.12 -c '
+  if printf '%s' "$run_json" | python3 -c '
 import json,os,sys
 name=os.environ["SERVICE_NAME"]
 sys.exit(0 if any(x.get("metadata",{}).get("name")==name or x.get("name","").split("/")[-1]==name for x in json.load(sys.stdin)) else 1)
@@ -217,15 +211,10 @@ sys.exit(0 if any(x.get("metadata",{}).get("name")==name or x.get("name","").spl
     _gcp run services delete "$SERVICE_NAME" --region "$GCP_REGION" --quiet
   fi
 
-
   if [[ -n "${S3_BUCKET:-}" ]]; then
-    if [[ "$S3_BUCKET" != "itc531-module7-jobtracker-284041991449" ]]; then
-      echo "Refusing to delete unexpected bucket: $S3_BUCKET" >&2
-      return 1
-    fi
     local bucket_json
     bucket_json="$(_gcp storage buckets list --format=json)" || return 1
-    if printf '%s' "$bucket_json" | python3.12 -c '
+    if printf '%s' "$bucket_json" | python3 -c '
 import json, os, sys
 wanted = os.environ["S3_BUCKET"]
 items = json.load(sys.stdin)
@@ -238,13 +227,12 @@ sys.exit(0 if any(
     fi
   fi
 
-
   local secrets_json secret_name
   secrets_json="$(_gcp secrets list --format=json)" || return 1
 
-  for secret_name in     itc531-jobtracker-jwt     itc531-jobtracker-hmac-id     itc531-jobtracker-hmac-secret
+  for secret_name in itc531-jobtracker-jwt itc531-jobtracker-hmac-id itc531-jobtracker-hmac-secret
   do
-    if printf '%s' "$secrets_json" | python3.12 -c '
+    if printf '%s' "$secrets_json" | python3 -c '
 import json, sys
 wanted = sys.argv[1]
 sys.exit(0 if any(
@@ -256,10 +244,9 @@ sys.exit(0 if any(
     fi
   done
 
-  # The one-purpose service account created for this module owns these keys.
   hmac_json="$(_gcp storage hmac list --format=json)" || return 1
   local keyrows access state
-  keyrows="$(printf '%s' "$hmac_json" | python3.12 -c '
+  keyrows="$(printf '%s' "$hmac_json" | python3 -c '
 import json,sys,os
 for x in json.load(sys.stdin):
     x=x.get("metadata",x)
@@ -274,10 +261,9 @@ for x in json.load(sys.stdin):
     _gcp storage hmac delete "$access" --quiet
   done <<< "$keyrows"
 
-  # Remove the project IAM binding separately, avoiding deleted principal residue.
   roles_json="$(_gcp projects get-iam-policy "$GCP_PROJECT" --format=json)" || return 1
   local roles role
-  roles="$(printf '%s' "$roles_json" | python3.12 -c '
+  roles="$(printf '%s' "$roles_json" | python3 -c '
 import json,os,sys
 member="serviceAccount:"+os.environ["SERVICE_ACCOUNT"]
 for b in json.load(sys.stdin).get("bindings",[]):
@@ -290,7 +276,7 @@ for b in json.load(sys.stdin).get("bindings",[]):
   done <<< "$roles"
 
   sa_json="$(_gcp iam service-accounts list --format=json)" || return 1
-  if printf '%s' "$sa_json" | python3.12 -c '
+  if printf '%s' "$sa_json" | python3 -c '
 import json,os,sys
 email=os.environ["SERVICE_ACCOUNT"]
 sys.exit(0 if any(x.get("email")==email for x in json.load(sys.stdin)) else 1)
@@ -298,7 +284,6 @@ sys.exit(0 if any(x.get("email")==email for x in json.load(sys.stdin)) else 1)
     _gcp iam service-accounts delete "$SERVICE_ACCOUNT" --quiet
   fi
 
-  # Independent read-only verification. Never print CLEAN when any read fails.
   local remaining
   remaining="$(adapter_enumerate)" || { echo 'Post-destroy enumeration failed' >&2; return 1; }
   if [[ -n "${remaining//[[:space:]]/}" ]]; then

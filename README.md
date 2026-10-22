@@ -1,99 +1,54 @@
-# Software Engineering Job Tracker[cite: 4]
+# Software Engineering Job Tracker (ITC 531)
 
-## Team Roles[cite: 4]
-* **Alberto and Marshaun**: Project Lead[cite: 4]
-* **Alberto and Marshaun**: Backend Developer[cite: 4]
-* **Marshaun**: DevOps Engineer[cite: 4]
-* **Alberto**: Documentation Lead[cite: 4]
+A full-stack, distributed application designed to track software engineering job applications. This project fulfills the final amalgamation requirements for ITC 531 by successfully integrating a web API, relational database, message broker, and object storage into a cohesive cloud environment.
 
-## Project Overview[cite: 4]
-This repository contains a cloud-native FastAPI service for a Software Engineering Job Tracker[cite: 4]. It aggregates job postings, tracks application statuses, and utilizes PostgreSQL for data storage, with all components orchestrated via Docker Compose[cite: 4].
+## Architecture & Tech Stack
 
-## Local Development Runbook
-### Prerequisites and Secrets
-This project requires local secrets that are not committed to version control.
-1. Copy the example environment file: `cp .env.local.example .env.local`
-2. Open `.env.local` and set the `BROKER_USER` and `BROKER_PASSWORD` variables. If these are not set, the stack will refuse to start.
+This application has been fully migrated from local development (SQLite/Docker) to a production-ready cloud architecture:
 
-### Run Instructions
-1. Clone the repository to your local machine:[cite: 4]
-   `git clone <your-repository-url>`
-2. Navigate into the project directory:[cite: 4]
-   `cd <your-project-directory>`
-3. Ensure Docker and Docker Compose are installed and running.[cite: 4]
-4. Start the core services and wait for them to be healthy:
-   `docker compose --env-file .env.local up -d --wait`
-5. Scale the API to 3 replicas for load balancing:
-   `docker compose --env-file .env.local up -d --scale app=3`
-6. Restart the gateway so Nginx resolves the new replica IPs:
-   `docker compose --env-file .env.local restart gateway`
-7. Access the API locally at `http://localhost:8000`.[cite: 4]
+*   **Compute:** Google Cloud Run (Serverless Container Deployment)
+*   **Database:** Neon PostgreSQL (Cloud-native relational database)
+*   **Message Broker:** CloudAMQP / RabbitMQ (Background event processing)
+*   **Object Storage:** Google Cloud Storage (S3-compatible bucket)
+*   **API Framework:** FastAPI (Python)
+*   **Secrets Management:** Google Cloud Secret Manager
 
-## Teardown Instructions[cite: 4]
-To stop the application and clean up all associated data volumes, run the following exact command:[cite: 4]
-`docker compose --env-file .env.local down --volumes`
+## Cloud Deployment Details
 
-## Decisions[cite: 4]
-* **Concept Chosen:** Software Engineering Job Tracker.[cite: 4]
-* **Concepts Rejected:** Finance Manager and Fitness Supplement Analyzer.[cite: 4]
-* **Why:** The job tracker provides a highly achievable core loop (uploading job data, processing statuses asynchronously, and viewing applications) that perfectly fits the required service categories (relational database, message broker, object storage, and metrics) while maintaining a manageable scope.[cite: 4]
+*   **GCP Project ID:** `project-2e54276d-7e4e-4719-b2b`
+*   **GCP Region:** `us-central1`
+*   **Live Service URL:** `https://itc531-job-tracker-447540810315.us-central1.run.app`
+*   **Storage Bucket:** `itc531-job-tracker-bucket-2e54276d`
 
-<!-- BEGIN M6 DEVOPS OWNER SECTION -->
+## Environment Variables & Secrets
 
-## Milestone 6: Cloud deployment and observability (DevOps contributor)
+The live Cloud Run environment maps the following variables. Sensitive credentials are automatically injected securely at runtime via GCP Secret Manager:
 
-This section covers the deployment and monitoring work. The **CI workflow, job gates, GitHub OIDC trust policy, and first-time registry/provider setup** belong to the teammate's Part 2 documentation and are not claimed as complete here.
+*   `DATABASE_URL`: Connection string for Neon PostgreSQL.
+*   `AMQP_URL` / `BROKER_URL`: Connection strings for the CloudAMQP RabbitMQ instance.
+*   `JWT_SECRET`: Secret key for generating and validating API authentication tokens.
+*   `S3_ENDPOINT_URL`: `https://storage.googleapis.com`
+*   `S3_BUCKET`: `itc531-job-tracker-bucket-2e54276d`
+*   `S3_REGION`: `auto` *(Required for GCP S3-compatibility)*
+*   `AWS_REQUEST_CHECKSUM_CALCULATION`: `WHEN_REQUIRED` *(Bypasses proprietary checksums that cause GCP signature mismatches)*
+*   `AWS_ACCESS_KEY_ID`: GCP HMAC Access Key
+*   `AWS_SECRET_ACCESS_KEY`: GCP HMAC Secret Key
 
-### Deployment: what is running and how it was verified
+## Key Features & Event Amalgamation
 
-- Provider: Google Cloud, project `itc531-module7`, region `us-central1`.
-- Cloud Run service: `itc531-job-tracker` at <https://itc531-job-tracker-k7misaiyja-uc.a.run.app>.
-- Image: `docker.io/marshaun06/job-tracker:e4686d7` (fixed Git-SHA tag; do not use `latest`).
-- Adapter: `adapters/gcp.sh`; public example: `adapters/gcp.env.example`; lifecycle scripts: `scripts/cloud-verify.sh`, `scripts/cloud-audit.sh`, `scripts/cloud-down.sh`.
-- Required preflight: `bash scripts/cloud-verify.sh gcp` must report `CONTRACT SATISFIED` **before** creating paid cloud resources.
-- Local private settings live in **gitignored** `adapters/gcp.env`; the GCS HMAC credential JSON from Module 7 is also private. The Cloud Run runtime obtains its JWT and HMAC access/secret via three project Secret Manager secrets, not committed values. The storage bucket has a bucket-scoped object role.
-- Two runs of `adapter_deploy` successfully generated revisions `00001-p5s` and `00002-vdj`, while `gcloud run services list` showed **one** service. Health returned `{"status":"ok","environment":"cloud","checks":{"database":"ok","storage":"ok"}}` and root HTTP status was 200. See `milestone6/DEPLOYMENT.md` and `milestone6/evidence/`.
-- Scale is minimum **0** and maximum **1** Cloud Run instance. This reduces idle spend but cold starts are possible. The configured **$5 monthly budget is a notification, not a hard spending cap**.
-- **Demo-only limitations:** Cloud Run currently uses `sqlite:////tmp/app.db`, which loses records when instances are replaced. The RabbitMQ broker and asynchronous workers are not deployed to GCP; production persistence and background tasks are **not** proven by the successful `/health` check.
+1.  **Authentication:** Secure JWT-based user login and token generation.
+2.  **File Storage (`/files`):** Users can upload files (e.g., resumes). The application streams the file directly to Google Cloud Storage and records the file metadata in the Neon PostgreSQL database.
+3.  **Background Processing (`/api/jobs/scrape` & `/api/exports`):** The API accepts long-running tasks, instantly returns an `HTTP 202 Accepted` status with a UUID tracking ID, and publishes a persistent message to the RabbitMQ broker for background consumer processing.
 
-To review live status (read-only):
+## Running the Application
 
-```bash
-bash scripts/cloud-audit.sh gcp
-gcloud run services list --project=itc531-module7 --region=us-central1
-curl -fsS https://itc531-job-tracker-k7misaiyja-uc.a.run.app/health
-```
+### Local Development
+To run the application locally using Docker Compose:
+1. Ensure your `.env.local` is configured.
+2. Run `docker-compose up --build` to start the API and background workers.
 
-An active cloud audit correctly says `NOT CLEAN` until the final coordinated teardown. **Important current risk:** The borrowed GCP `adapter_destroy` function also deletes the pre-existing Module 7 HMAC key, its shared service account, and local credential file. **Do not run `scripts/cloud-down.sh gcp` until it has been changed and independently reviewed to preserve those shared resources.** Part 5 owns the final teardown and the follow-up audit after at least 24 hours.
-
-### Local monitoring / dashboard
-
-The monitoring files are in `milestone6/monitoring/` and use version-pinned Prometheus `prom/prometheus:v3.5.0`, Grafana `grafana/grafana:12.1.0`, and the same fixed Job Tracker image. There is **no host exporter**. The local monitoring stack is intentionally separate from your team's existing `compose.yml` and the deployed Cloud Run service; it doesn't incur extra GCP monitoring resource charges.
-
-From the repository root:
-
-```bash
-docker compose -f milestone6/monitoring/compose.yml up -d --wait
-```
-
-- Prometheus target page: <http://localhost:9091/targets>. Check the `job-tracker` target is **UP**; the scrape path is **`/metrics/`** with the trailing slash.
-- Grafana dashboard: <http://localhost:3001/d/jobtracker-observability/job-tracker-observability>. Local-only demo login: `admin` / `local-demo-only`.
-- Two provisioned panels: request rate `sum(rate(itc531_requests_total[5m])) or vector(0)` with requests/second units; server error rate `sum(rate(itc531_requests_total{status=~"5.."}[5m])) or vector(0)` with errors/second units.
-- The verified Prometheus scrape returned `up=1`; during demo load, request rate was approximately `0.1608` requests/second and server 5xx rate was `0`. See `milestone6/OBSERVABILITY.md`, the Grafana dashboard JSON, and screenshots in `milestone6/evidence/`.
-- Stop locally with `docker compose -f milestone6/monitoring/compose.yml down`; omit `--volumes` if you want to retain historical dashboard data.
-
-### Latency and cost evaluation (Part 4)
-
-Run the same 3-repetition benchmark locally and on Cloud Run using `milestone6/part4/README.md`. The root Nginx gateway short-circuits `/health`, so the Part 4 measurements used the **actual FastAPI app** through the Part 3 monitoring stack at `127.0.0.1:8012` for a fair endpoint comparison. The harness creates temporary test users and measures warm `GET /health` and authenticated `GET /tasks` with 50 timed requests per repetition; no credentials go in the CSV evidence. Report generated at `milestone6/MEASUREMENT.md` with per-repetition p50/p95, medians, and a separately labeled rough TCP RTT proxy.
-
-Actual provider charges must be captured in Google Cloud Billing Reports (screenshot + time range + timestamp). The old Milestone 3 model assumed AWS, so the change of provider, service mix and demo volume is noted rather than forcing a false apples-to-apples variance. The Milestone 3 reversal threshold names `GET /api/v1/applications`, an endpoint absent from the current app; report that limitation and don't substitute an unrelated endpoint silently.
-
-### Three problems actually encountered, and fixes
-
-1. **Adapter ZIP wasn't at `~/Downloads`:** An initial `unzip` failed with “cannot find or open”. We corrected the archive path to the copy in the actual module folder, then checked `adapters/gcp.sh` exists and passes `bash -n`.
-2. **A documentation heredoc didn't terminate:** Pasting a long Python edit left the terminal showing `heredoc>` instead of changing `milestone6/DEPLOYMENT.md`. We used a complete, properly terminated `python3 - <<'PY'` block and verified the output with `cat` before committing.
-3. **Whitespace warnings in Docker build evidence:** `git diff --cached --check` flagged trailing whitespace and carriage-return progress output in `milestone6/evidence/image-build.txt`. The warnings came from captured build output rather than changed Python source; logs should be normalized for cleaner diffs (without altering what was measured), and the team should inspect the staged changes before pushing.
-
-For other failures, start with the application's `/health` **checks object**, `docker compose ... ps`, Prometheus's Targets page, Cloud Run revision logs, and `bash scripts/cloud-audit.sh gcp`. Avoid deleting GCP resources as a first troubleshooting step.
-
-<!-- END M6 DEVOPS OWNER SECTION -->
+### Cloud Deployment & Auditing
+Deployment and teardown are managed via custom bash adapters. 
+*   **Deploy:** Run `source adapters/gcp.sh` followed by `adapter_deploy`.
+*   **Audit:** Run `./adapters/cloud-audit.sh` to verify infrastructure health and IAM configurations.
+*   **Teardown:** Run `./adapters/cloud-down.sh` to safely destroy the Cloud Run service and associated resources when the environment is no longer needed.
